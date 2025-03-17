@@ -110,6 +110,10 @@ public class BackendSocket : MonitoredBehaviour
         public float target_speed;
         public float throttle;
         public float brake;
+        public bool indicating_left;
+        public bool indicating_right;
+        public bool indicator_left;
+        public bool indicator_right;
     }
 
     [System.Serializable]

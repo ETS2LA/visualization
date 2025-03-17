@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a36504cbf5eb8a1429b8b0f74bb30caf, type: 3}
   m_Name: MonitoringSettings
   m_EditorClassIdentifier: 
-  enableMonitoring: 1
+  enableMonitoring: 0
   updateRate: 2
   asyncProfiling: 1
   updatesWithLowTimeScale: 0
