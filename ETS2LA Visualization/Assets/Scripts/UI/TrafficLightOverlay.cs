@@ -2,7 +2,6 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using TMPro;
-using Unity.VisualScripting;
 
 public class TrafficLightOverlay : MonoBehaviour
 {
@@ -13,12 +12,15 @@ public class TrafficLightOverlay : MonoBehaviour
     public BackendSocket backend;
     public TrafficLightBuilder traffic_light_builder;
     public int target_index;
+    private Camera main_cam;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        transform.GetChild(0).gameObject.SetActive(false);
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
         traffic_light_builder = GameObject.Find("TrafficLights").GetComponent<TrafficLightBuilder>();
+        main_cam = Camera.main;
     }
 
     Color state_text_to_color(string text)
@@ -41,10 +43,12 @@ public class TrafficLightOverlay : MonoBehaviour
     {
         if (backend.world == null)
         {
+            transform.GetChild(0).gameObject.SetActive(false);
             return;
         }
         if (backend.world.traffic == null)
         {
+            transform.GetChild(0).gameObject.SetActive(false);
             return;
         }
 
@@ -54,15 +58,9 @@ public class TrafficLightOverlay : MonoBehaviour
             traffic_light_builder.traffic_lights[target_index].transform.position.z
         );
 
-        Vector3 truck_position = new Vector3(
-            backend.truck.transform.z - backend.truck.transform.sector_y, 
-            backend.truck.transform.y, 
-            backend.truck.transform.x - backend.truck.transform.sector_x
-        );
+        float distance = Vector3.Distance(main_cam.transform.position, target_position);
 
-        float distance = Vector3.Distance(truck_position, target_position);
-
-        if(distance > 50)
+        if(distance > 75)
         {
             transform.GetChild(0).gameObject.SetActive(false);
             return;
@@ -128,10 +126,22 @@ public class TrafficLightOverlay : MonoBehaviour
         current.text = state_text.ToUpper();
         current.color = current_color;
 
-        transform.DOMove(Camera.main.WorldToScreenPoint(target_position), 0.2f);
-
-        // Scale is 0.8 at 20m distance
-        float scale = 0.8f / (distance / 20);
-        transform.DOScale(new Vector3(scale, scale, scale), 0.2f);
+        Vector3 screen_target = Camera.main.WorldToScreenPoint(target_position);
+        float screen_distance = Vector3.Distance(main_cam.transform.position, target_position);
+        
+        // Scale is 0.8 at 30m distance
+        float scale = 0.8f / (distance / 30);
+        
+        if (screen_distance > 25)
+        {
+            transform.position = screen_target;
+            transform.localScale = new Vector3(scale, scale, scale);
+            transform.DOKill();
+        }
+        else
+        {
+            transform.DOMove(Camera.main.WorldToScreenPoint(target_position), 0.2f);
+            transform.DOScale(new Vector3(scale, scale, scale), 0.2f);
+        }
     }
 }

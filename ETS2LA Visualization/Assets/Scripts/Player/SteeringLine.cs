@@ -37,6 +37,11 @@ public class SteeringLine : MonoBehaviour
             {
                 lineRenderer.SetPosition(i, last_data[i] + Vector3.up * 0.2f);
             }
+
+            if(last_data.Length == 0)
+            {
+                lineRenderer.positionCount = 0;
+            }
         }
     }
 }

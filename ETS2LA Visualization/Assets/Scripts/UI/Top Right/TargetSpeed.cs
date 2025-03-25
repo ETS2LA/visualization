@@ -32,8 +32,8 @@ public class TargetSpeed : MonoBehaviour
 
         if (backend.world.status.enabled != null)
         {
-            targetspeed.color = backend.world.status.enabled.Contains("Map") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(1, 1, 1, 1);
-            set.color = backend.world.status.enabled.Contains("Map") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(0,0,0,0);
+            targetspeed.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(1, 1, 1, 1);
+            set.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(0,0,0,0);
         }
     }
 }

@@ -78,14 +78,24 @@ public class TrafficLightBuilder : MonoBehaviour
                 traffic_lights.Add(traffic_light_object);
             }
 
+            GameObject[] to_remove = new GameObject[traffic_lights.Count];
             foreach(GameObject traffic_light_object in traffic_lights)
             {
                 if(!System.Array.Exists(traffic_light_names, traffic_light_name => traffic_light_name == traffic_light_object.name))
+                {
+                    to_remove[System.Array.IndexOf(traffic_lights.ToArray(), traffic_light_object)] = traffic_light_object;
+                }
+            }
+
+            foreach(GameObject traffic_light_object in to_remove)
+            {
+                if(traffic_light_object != null)
                 {
                     traffic_lights.Remove(traffic_light_object);
                     Destroy(traffic_light_object);
                 }
             }
+
         }
     }
 }
