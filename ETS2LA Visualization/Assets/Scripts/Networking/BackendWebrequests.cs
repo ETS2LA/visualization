@@ -31,14 +31,15 @@ public class BackendWebrequests : MonitoredBehaviour
     private string last_update_time = "";
     private string current_update_time = "";
 
+    public string ip_address = "localhost";
 
     IEnumerator CheckForUpdate()
     {
-        yield return StartCoroutine(GetTagData("http://localhost:37520/api/tags/data", "map_update_time"));
+        yield return StartCoroutine(GetTagData($"http://{ip_address}:37520/api/tags/data", "map_update_time"));
         if (current_update_time != last_update_time)
         {
             last_update_time = current_update_time;
-            yield return StartCoroutine(GetTagData("http://localhost:37520/api/tags/data", "map"));
+            yield return StartCoroutine(GetTagData($"http://{ip_address}:37520/api/tags/data", "map"));
         }
     }
 

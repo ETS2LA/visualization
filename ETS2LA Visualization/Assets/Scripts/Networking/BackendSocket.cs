@@ -3,8 +3,6 @@ using MikeSchweitzer.WebSocket;
 using Baracuda.Monitoring;
 using System.Collections.Generic;
 using DG.Tweening;
-using UnityEngine.UIElements;
-using Unity.VisualScripting;
 
 [System.Serializable]
 public class RouteInformation
@@ -276,7 +274,6 @@ public class BackendSocket : MonitoredBehaviour
                 break;
             case WebSocketState.Disconnected:
                 connection_status = "Disconnected";
-                Connect();
                 break;
             case WebSocketState.Invalid:
                 connection_status = "Invalid";
@@ -293,8 +290,8 @@ public class BackendSocket : MonitoredBehaviour
     {
         if (connection.State == WebSocketState.Disconnected && Time.time - last_connection_retry > connection_retry_time)
         {
-            Debug.LogError("Connection lost, retrying...");
-            Connect();
+            Debug.LogError("Connection lost...");
+            return;
         }
 
         int count = 0;
