@@ -35,7 +35,21 @@
         productVersion: "{{{ PRODUCT_VERSION }}}",
         // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
         devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      }, (progress) => {
+        var bar = document.getElementById('loading-bar');
+        if (bar) {
+          bar.style.width = 100 * progress + '%';
+        }
+      }
+    ).then((unityInstance) => {
+        let wrapper = document.getElementById('loading-bar-wrapper');
+        let bar = document.getElementById('loading-bar');
+        if(wrapper)
+          wrapper.style.display = "none";
+        if(bar)
+          bar.style.display = "none";
       });
+
     </script>
     <style>
         html,
@@ -47,6 +61,27 @@
             height: 100%;
             box-sizing: border-box;
         }
+
+        #loading-bar-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            height: 10px;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        #loading-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50; /* Progress bar color */
+        }
+
     </style>
+    <div id="loading-bar-wrapper">
+        <div id="loading-bar"></div>
+    </div>
   </body>
 </html>
