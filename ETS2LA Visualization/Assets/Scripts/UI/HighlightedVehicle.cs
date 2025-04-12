@@ -50,7 +50,7 @@ public class HighlightedVehicle : MonoBehaviour
                 );
                 float distance = Vector3.Distance(main_cam.transform.position, target_position);
 
-                if(distance > 100)
+                if(distance > 120)
                 {
                     transform.GetChild(0).gameObject.SetActive(false);
                     return;

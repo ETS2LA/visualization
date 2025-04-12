@@ -5,7 +5,7 @@
 //---------- -------------------------- -------
 
 //Runtime Monitoring
-//File generated: 2025-04-01 15:12:57Z
+//File generated: 2025-04-12 21:24:02Z
 //Please dont change the contents of this file. Otherwise IL2CPP runtime may not work with runtime monitoring!
 //Ensure that this file is located in Assembly-CSharp. Otherwise this file may not compile.
 //If this file contains any errors please contact me and/or create an issue in the linked repository.
@@ -13,7 +13,7 @@
 
 #if ENABLE_IL2CPP && !DISABLE_MONITORING
 
-internal class IL2CPP_AOT_RL8PMZBIDXX6HNIJU45I
+internal class IL2CPP_AOT_BXCVH05KSAXX6AAFP1H8
 {
     //Value Processor Method Definitions
 
@@ -27,6 +27,7 @@ internal class IL2CPP_AOT_RL8PMZBIDXX6HNIJU45I
         // BackendWebrequests::roads_count (System.Int32)
         // BackendWebrequests::prefabs_count (System.Int32)
         // BackendWebrequests::models_count (System.Int32)
+        // BackendWebrequests::elevations_count (System.Int32)
         Baracuda.Monitoring.IL2CPP.IL2CPPTypeDefinitions.TypeDefField<System.Object, System.Int32>();
 
         // BackendSocket::connection_status (System.String)
@@ -87,20 +88,20 @@ internal class IL2CPP_AOT_RL8PMZBIDXX6HNIJU45I
 
 //General
 
-//Monitored Member:               35
-//Monitored Member Instance:      35
+//Monitored Member:               36
+//Monitored Member Instance:      36
 
 //MemberInfo
 
-//Monitored Fields:               31
-//Monitored Fields Instance:      31
+//Monitored Fields:               32
+//Monitored Fields Instance:      32
 //Monitored Properties:            4
 //Monitored Properties Instance:   4
 
 //Monitored Types
 
 //Monitored float:                 2
-//Monitored int:                   6
+//Monitored int:                   7
 //Monitored Queue<string>:         1
 //Monitored string:               23
 //Monitored Vector3:               3
