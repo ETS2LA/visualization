@@ -19,7 +19,7 @@ public class IPSelector : MonoBehaviour
         // Initialize the input field with the prefix
         if (!ipInputField.text.StartsWith(WebSocketPrefix))
         {
-            ipInputField.text = WebSocketPrefix + "localhost:37522";
+            ipInputField.text = WebSocketPrefix + "ets2la.local:37522";
         }
 
         // Add a listener to handle text changes
@@ -46,8 +46,8 @@ public class IPSelector : MonoBehaviour
         }
         else
         {
-            backendSocket.url = WebSocketPrefix + "localhost:37522";
-            backendWebrequests.ip_address = "localhost";
+            backendSocket.url = WebSocketPrefix + "ets2la.local:37522";
+            backendWebrequests.ip_address = "ets2la.local";
         }
     }
 
@@ -56,7 +56,7 @@ public class IPSelector : MonoBehaviour
         // Ensure the prefix is always present
         if (!newText.StartsWith(WebSocketPrefix))
         {
-            ipInputField.text = WebSocketPrefix + "localhost:37522";
+            ipInputField.text = WebSocketPrefix + "ets2la.local:37522";
         }
     }
 }

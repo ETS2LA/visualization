@@ -2743,7 +2743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connection: {fileID: 1028169605}
-  url: ws://localhost:37522
+  url: ws://ets2la.local:37522
   connection_retry_time: 5
   profiling_time: 1
   subscribed_channels: 0100000002000000030000000400000005000000060000000700000008000000
@@ -4793,7 +4793,7 @@ MonoBehaviour:
   prefabs_count: 0
   models_count: 0
   elevations_count: 0
-  ip_address: localhost
+  ip_address: ets2la.local
 --- !u!4 &2083485858
 Transform:
   m_ObjectHideFlags: 0
