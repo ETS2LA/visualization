@@ -4,6 +4,7 @@ using TMPro;
 
 public class IPSelector : MonoBehaviour
 {
+    public TMP_Text HTTPSNotice;
     private TMP_InputField ipInputField;
     private BackendSocket backendSocket;
     private BackendWebrequests backendWebrequests;
@@ -19,11 +20,16 @@ public class IPSelector : MonoBehaviour
         // Initialize the input field with the prefix
         if (!ipInputField.text.StartsWith(WebSocketPrefix))
         {
-            ipInputField.text = WebSocketPrefix + "ets2la.local:37522";
+            ipInputField.text = WebSocketPrefix + "localhost:37522";
         }
 
         // Add a listener to handle text changes
         ipInputField.onValueChanged.AddListener(OnInputFieldChanged);
+
+        if (Application.absoluteURL.Contains("https"))
+        {
+            HTTPSNotice.gameObject.SetActive(true);
+        }
     }
 
     void Update()
@@ -46,8 +52,8 @@ public class IPSelector : MonoBehaviour
         }
         else
         {
-            backendSocket.url = WebSocketPrefix + "ets2la.local:37522";
-            backendWebrequests.ip_address = "ets2la.local";
+            backendSocket.url = WebSocketPrefix + "localhost:37522";
+            backendWebrequests.ip_address = "localhost";
         }
     }
 
@@ -56,7 +62,23 @@ public class IPSelector : MonoBehaviour
         // Ensure the prefix is always present
         if (!newText.StartsWith(WebSocketPrefix))
         {
-            ipInputField.text = WebSocketPrefix + "ets2la.local:37522";
+            ipInputField.text = WebSocketPrefix + "localhost:37522";
         }
+    }
+
+    public void TryLocal()
+    {
+        ipInputField.text = WebSocketPrefix + "localhost:37522";
+        backendSocket.url = WebSocketPrefix + "localhost:37522";
+        backendWebrequests.ip_address = "localhost";
+        backendSocket.Connect();
+    }
+
+    public void TryRemote()
+    {
+        ipInputField.text = WebSocketPrefix + "ets2la.local:37522";
+        backendSocket.url = WebSocketPrefix + "ets2la.local:37522";
+        backendWebrequests.ip_address = "ets2la.local";
+        backendSocket.Connect();        
     }
 }
