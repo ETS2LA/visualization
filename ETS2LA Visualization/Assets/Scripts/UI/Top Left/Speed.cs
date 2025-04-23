@@ -6,10 +6,12 @@ public class Speed : MonoBehaviour
 {
     private BackendSocket backend;
     private TMP_Text speed;
+    private TMP_Text unit;
 
     void Start()
     {
         speed = GetComponent<TMP_Text>();
+        unit = transform.GetChild(0).GetComponent<TMP_Text>();
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
     }
 
@@ -25,6 +27,13 @@ public class Speed : MonoBehaviour
             return;
         }
 
-        speed.text = math.round(backend.truck.state.speed * 3.6f).ToString();
+        if(backend.truck.state.game == "ATS"){
+            speed.text = math.round(backend.truck.state.speed * 2.23694f).ToString();
+            unit.text = "mph";
+        }
+        else {
+            speed.text = math.round(backend.truck.state.speed * 3.6f).ToString();
+            unit.text = "km/h";
+        }
     }
 }

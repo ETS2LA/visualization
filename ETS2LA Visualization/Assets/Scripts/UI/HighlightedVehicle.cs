@@ -31,6 +31,16 @@ public class HighlightedVehicle : MonoBehaviour
         {
             return;
         }
+        if (backend.truck == null)
+        {
+            return;
+        }
+        if (backend.truck.transform == null)
+        {
+            return;
+        }
+
+        bool isATS = backend.truck.state.game == "ATS";
 
         if(target_uid == 0)
         {
@@ -60,14 +70,25 @@ public class HighlightedVehicle : MonoBehaviour
                     transform.GetChild(0).gameObject.SetActive(true);
                 }
 
-                float target_speed = backend.world.traffic[i].speed * 3.6f;
-                float target_speed_offset = (backend.world.traffic[i].speed - backend.truck.state.speed) * 3.6f;
+                float multiplier = 3.6f;
+                if(isATS){
+                    multiplier = 2.23694f;
+                }
+                float target_speed = backend.world.traffic[i].speed * multiplier;
+                float target_speed_offset = (backend.world.traffic[i].speed - backend.truck.state.speed) * multiplier;
 
                 target_speed = (float)Math.Round(target_speed, 0);
                 target_speed_offset = (float)Math.Round(target_speed_offset, 0);
 
-                speed.text = target_speed.ToString() + " km/h";
-                distance_text.text = Math.Round(distance, 0).ToString() + " m";
+                if (isATS){
+                    speed.text = target_speed.ToString() + " mph";
+                    distance_text.text = Math.Round(distance * 3.28084f, 0).ToString() + " ft";
+                }
+                else
+                {
+                    speed.text = target_speed.ToString() + " km/h";
+                    distance_text.text = Math.Round(distance, 0).ToString() + " m";
+                }
 
                 if (target_speed_offset > 0)
                 {
@@ -90,7 +111,7 @@ public class HighlightedVehicle : MonoBehaviour
                 Vector3 screen_target = Camera.main.WorldToScreenPoint(target_position);
                 float screen_distance = Vector3.Distance(Camera.main.transform.position, target_position);
                 // Scale is 0.8 at 30m distance
-                float scale = 0.8f / (screen_distance / 30);
+                float scale = 1.0f / (screen_distance / 30);
 
                 if (screen_distance > 100)
                 {

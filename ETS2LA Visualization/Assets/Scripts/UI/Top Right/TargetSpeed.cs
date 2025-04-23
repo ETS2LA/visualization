@@ -28,7 +28,12 @@ public class TargetSpeed : MonoBehaviour
             return;
         }
 
-        targetspeed.text = math.round(backend.truck.state.target_speed * 3.6f).ToString();
+        float multiplier = 3.6f;
+        if (backend.truck.state.game == "ATS")
+        {
+            multiplier = 2.23694f;
+        }
+        targetspeed.text = math.round(backend.truck.state.target_speed * multiplier).ToString();
 
         if (backend.world.status.enabled != null)
         {
