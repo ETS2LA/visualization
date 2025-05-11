@@ -23,7 +23,7 @@ public class Vehicle : MonoBehaviour
 
     void EnableChild(int index)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             transform.GetChild(i).gameObject.SetActive(i == index);
         }
@@ -132,6 +132,20 @@ public class Vehicle : MonoBehaviour
 
         float distance = Vector3.Distance(truck_position, target_position);
 
+        if (self.is_tmp == true)
+        {
+            // TMP doesn't have vans
+            if(type == "van") type = "truck";
+        }
+
+        if (self.is_tmp == true && self.is_trailer == true)
+        {
+            // TMP sends a trailer flag instead of trailers
+            // behind trucks.
+            type = "trailer";
+            transform.localScale = new Vector3(self.size.width / 2, self.size.height, self.size.length);
+        }
+
         switch (type)
         {
             case "car":
@@ -164,6 +178,14 @@ public class Vehicle : MonoBehaviour
                     ColorChild(3, new Color(0.5f, 0.9f, 1.0f));
                 else
                     ColorChild(3, new Color(0.5f, 0.5f, 0.5f));
+
+                break;
+            case "trailer":
+                EnableChild(4);
+                if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
+                    ColorChild(4, new Color(0.5f, 0.9f, 1.0f));
+                else
+                    ColorChild(4, new Color(0.5f, 0.5f, 0.5f));
 
                 break;
         }

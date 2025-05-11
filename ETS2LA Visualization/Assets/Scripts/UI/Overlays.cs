@@ -11,6 +11,7 @@ public class Overlays : MonoBehaviour
     [Header("Highlighted Vehicle")]
     public GameObject highlightedVehicleUIElement;
     public bool showHighlightedVehicleOverlay = true;
+    public bool showOnAll = false;
     private List<GameObject> highlightedVehicles = new List<GameObject>();
 
 
@@ -35,21 +36,35 @@ public class Overlays : MonoBehaviour
             return;
         }
 
-        while (highlightedVehicles.Count < backend.world.highlights.vehicles.Length)
+        int[] highlights;
+        if (showOnAll)
+        {
+            highlights = new int[backend.world.traffic.Length];
+            for (int i = 0; i < backend.world.traffic.Length; i++)
+            {
+                highlights[i] = backend.world.traffic[i].id;
+            }
+        }
+        else
+        {
+            highlights = backend.world.highlights.vehicles;
+        }
+
+        while (highlightedVehicles.Count < highlights.Length)
         {
             GameObject newHighlightedVehicle = Instantiate(highlightedVehicleUIElement, transform);
             highlightedVehicles.Add(newHighlightedVehicle);
         }
-        while (highlightedVehicles.Count > backend.world.highlights.vehicles.Length)
+        while (highlightedVehicles.Count > highlights.Length)
         {
             Destroy(highlightedVehicles[highlightedVehicles.Count - 1]);
             highlightedVehicles.RemoveAt(highlightedVehicles.Count - 1);
         }
 
-        for (int i = 0; i < backend.world.highlights.vehicles.Length; i++)
+        for (int i = 0; i < highlights.Length; i++)
         {
             HighlightedVehicle highlightedVehicle = highlightedVehicles[i].GetComponent<HighlightedVehicle>();
-            highlightedVehicle.target_uid = backend.world.highlights.vehicles[i];
+            highlightedVehicle.target_uid = highlights[i];
         }
     }
 

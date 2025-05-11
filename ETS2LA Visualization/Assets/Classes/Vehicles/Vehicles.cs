@@ -47,4 +47,6 @@ public class VehicleClass
     public int trailer_count;
     public int id;
     public TrailerClass[] trailers;
+    public bool is_tmp;
+    public bool is_trailer;
 }

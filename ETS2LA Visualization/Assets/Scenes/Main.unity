@@ -4981,6 +4981,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highlightedVehicleUIElement: {fileID: 3582254240053553689, guid: c847286731ea4c647a8bfb545218e286, type: 3}
   showHighlightedVehicleOverlay: 1
+  showOnAll: 0
   trafficLightUIElement: {fileID: 3582254240053553689, guid: 6f4c3510036573a46885fad836e2fe83, type: 3}
   showTrafficLightOverlay: 1
 --- !u!114 &1747629459
