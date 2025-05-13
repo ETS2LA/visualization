@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.mikeschweitzer.websocket": "https://github.com/mikerochip/unity-websocket.git",
-    "com.unity.cinemachine": "3.1.2",
     "com.unity.collab-proxy": "2.6.0",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.inputsystem": "1.11.2",

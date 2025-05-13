@@ -113,6 +113,7 @@ public class BackendSocket : MonitoredBehaviour
         public bool indicator_left;
         public bool indicator_right;
         public string game;
+        public int time;
     }
 
     [System.Serializable]

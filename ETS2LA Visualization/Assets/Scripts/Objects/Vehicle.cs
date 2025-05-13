@@ -15,6 +15,8 @@ public class Vehicle : MonoBehaviour
     public GameObject bus;
     public GameObject truck;
 
+    public VehicleLights lights;
+
     void Start()
     {
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
@@ -26,6 +28,10 @@ public class Vehicle : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             transform.GetChild(i).gameObject.SetActive(i == index);
+            if(i == index)
+            {
+                lights = transform.GetChild(i).GetComponent<VehicleLights>();
+            }
         }
     }
 
@@ -114,6 +120,13 @@ public class Vehicle : MonoBehaviour
             {
                 trailers[i].transform.GetChild(0).gameObject.SetActive(false); // user_trailer
                 trailers[i].transform.GetChild(1).gameObject.SetActive(true);  // traffic_caravan
+                trailers[i].transform.GetChild(1).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
+            }
+            else
+            {
+                trailers[i].transform.GetChild(0).gameObject.SetActive(true); // user_trailer
+                trailers[i].transform.GetChild(0).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
+                trailers[i].transform.GetChild(1).gameObject.SetActive(false);  // traffic_caravan
             }
 
             Vector3 target_trailer_position = new Vector3(self.trailers[i].position.z - backend.truck.transform.sector_y, self.trailers[i].position.y + self.trailers[i].size.height / 2, self.trailers[i].position.x - backend.truck.transform.sector_x);
@@ -143,7 +156,6 @@ public class Vehicle : MonoBehaviour
             // TMP sends a trailer flag instead of trailers
             // behind trucks.
             type = "trailer";
-            transform.localScale = new Vector3(self.size.width / 2, self.size.height, self.size.length);
         }
 
         switch (type)
@@ -189,5 +201,8 @@ public class Vehicle : MonoBehaviour
 
                 break;
         }
+
+        lights.isBraking = self.acceleration < -1 || self.speed < 0.1;
+        //lights.lightIntensity = 0;
     }
 }
