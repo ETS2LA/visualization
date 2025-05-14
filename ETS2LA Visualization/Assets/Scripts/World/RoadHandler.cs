@@ -17,20 +17,22 @@ public class RoadHandler : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             lanes[i] = transform.GetChild(i).gameObject;
-            lanes[i].GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+            if(road.road_look.name.Contains("dirt"))
+                lanes[i].GetComponent<Renderer>().material.color = new Color(20 / 255f, 15 / 255f, 10 / 255f);
+            else
+                lanes[i].GetComponent<Renderer>().material.color = new Color(10 / 255f, 10 / 255f, 10 / 255f);
         }
 
         if(road.road_look.name.Contains("dirt"))
         {
-            normal_color = new Color(0.4f, 0.3f, 0.2f);
-            highlight_color = new Color(0.4f, 0.3f, 0.2f);
+            normal_color = new Color(20 / 255f, 15 / 255f, 10 / 255f);
         }
         else
         {
-            normal_color = new Color(0.2f, 0.2f, 0.2f);
-            highlight_color = new Color(0.2f, 0.23f, 0.3f);
+            normal_color = new Color(10 / 255f, 10 / 255f, 10 / 255f);
         }
 
+        highlight_color = normal_color; // Disable highlight for now...
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
     }
 

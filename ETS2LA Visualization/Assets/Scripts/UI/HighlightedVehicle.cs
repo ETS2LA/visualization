@@ -10,7 +10,7 @@ public class HighlightedVehicle : MonoBehaviour
     public TMP_Text difference;
     public TMP_Text distance_text;
     public BackendSocket backend;
-    public int target_uid;
+    public int target_uid = -1;
     private Camera main_cam;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -42,7 +42,7 @@ public class HighlightedVehicle : MonoBehaviour
 
         bool isATS = backend.truck.state.game == "ATS";
 
-        if(target_uid == 0)
+        if(target_uid == -1)
         {
             transform.GetChild(0).gameObject.SetActive(false);
             return;

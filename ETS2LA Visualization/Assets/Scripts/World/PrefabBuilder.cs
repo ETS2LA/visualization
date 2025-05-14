@@ -273,54 +273,11 @@ public class PrefabBuilder : MonoBehaviour
                             marking_mesh_renderer.material = solid_marking_material;
                         }
                     }
-
-                    // Start Node and end node spheres
-                    // GameObject start_node = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    // start_node.transform.parent = route_object.transform;
-                    // start_node.transform.position = route.points[0].ToVector3();
-                    // start_node.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-                    // start_node.GetComponent<MeshRenderer>().material.color = Color.green;
-                    // 
-                    // GameObject end_node = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    // end_node.transform.parent = route_object.transform;
-                    // end_node.transform.position = route.points[route.points.Length - 1].ToVector3();
-                    // end_node.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-                    // end_node.GetComponent<MeshRenderer>().material.color = Color.red;
-
-                    // Spheres for all the points
-                    // foreach(Point point in route.points)
-                    // {
-                    //     GameObject point_object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    //     point_object.transform.parent = route_object.transform;
-                    //     point_object.transform.position = point.ToVector3();
-                    //     point_object.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-                    //     point_object.GetComponent<MeshRenderer>().material.color = Color.blue;
-                    // }
                 }
 
                 instantiated_prefabs.Add(prefab.uid);
                 prefab_object.AddComponent<StaticObject>();
                 prefab_object.GetComponent<StaticObject>().position = prefab_object.transform.position;
-
-                // It might work, but since the rotations are now applied to the points themselves this is no longer necessary
-
-                // // Original quaternion components
-                // float qx = prefab.origin_node.rotationQuat[0];
-                // float qy = prefab.origin_node.rotationQuat[1];
-                // float qz = prefab.origin_node.rotationQuat[2];
-                // float qw = prefab.origin_node.rotationQuat[3];
-                // 
-                // // Create a quaternion from the original values
-                // Quaternion originalQuat = new Quaternion(qx, qy, qz, qw);
-
-                // // Extract the pitch (rotation around X-axis)
-                // float pitch = Mathf.Asin(2 * (qw * qx - qy * qz));
-
-                // // Create a new quaternion that represents only the pitch
-                // Quaternion pitchQuat = Quaternion.AngleAxis(pitch * Mathf.Rad2Deg, Vector3.right);
-
-                // // Apply only the pitch to the prefab object
-                // prefab_object.transform.rotation = pitchQuat;
             }
 
             List<string> prefabs_to_remove = new List<string>();

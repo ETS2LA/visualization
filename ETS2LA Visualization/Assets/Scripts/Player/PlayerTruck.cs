@@ -93,7 +93,7 @@ public class PlayerTruck : MonitoredBehaviour
                     for (int j = 0; j < backend.truck.trailers.Length; j++)
                     {
                         connected_trailers[j] = Instantiate(trailer_prefab);
-                        connected_trailers[j].transform.GetChild(0).GetChild(0).gameObject.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f);
+                        connected_trailers[j].transform.GetChild(0).GetChild(0).gameObject.GetComponent<Renderer>().material = transform.GetChild(1).GetChild(0).GetComponent<MeshRenderer>().material;
                         connected_trailers[j].transform.GetChild(0).localScale = new Vector3(1, 1.33f, 2);
                     }
                 }

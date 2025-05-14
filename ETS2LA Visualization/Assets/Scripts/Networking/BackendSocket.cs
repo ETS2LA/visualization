@@ -52,7 +52,7 @@ public class BackendSocket : MonitoredBehaviour
         public int channel;
         public string method;
     }
-    
+
     [System.Serializable]
     public class BaseResult {
         public string type;
@@ -183,7 +183,7 @@ public class BackendSocket : MonitoredBehaviour
     #endregion
 
     # region Truck
-    public class Truck{
+    public class Truck {
         public Transform transform;
         public Vector3[] steering = new Vector3[0];
         public TruckState state;
@@ -193,7 +193,7 @@ public class BackendSocket : MonitoredBehaviour
     #endregion 
 
     # region World
-    public class Highlights 
+    public class Highlights
     {
         public int[] vehicles = new int[0];
     }
@@ -243,7 +243,7 @@ public class BackendSocket : MonitoredBehaviour
         this.StopMonitoring();
     }
 
-    private void OnConnect(WebSocketConnection connection){
+    private void OnConnect(WebSocketConnection connection) {
         Debug.Log("Successfully connected to " + url);
         Debug.Log("Connecting to " + subscribed_channels.Length + " channels...");
         for (int i = 0; i < subscribed_channels.Length; i++)
@@ -251,7 +251,7 @@ public class BackendSocket : MonitoredBehaviour
             SubscribeChannel subscribe = new SubscribeChannel();
             subscribe.channel = subscribed_channels[i];
             subscribe.method = "subscribe";
-            
+
             connection.AddOutgoingMessage(JsonUtility.ToJson(subscribe));
             Debug.Log("Subscribed to channel " + subscribed_channels[i]);
         }

@@ -46,6 +46,19 @@ public class Vehicle : MonoBehaviour
         material.color = color;
     }
 
+    float GetLightState(int time)
+    {
+        int hour = Mathf.FloorToInt(time / 60) % 24;
+
+        if (hour >= 19)
+            return 1f;
+
+        if (hour < 7)
+            return 1f;
+
+        return 0f;
+    }
+
     void Update()
     {
         if (backend.world == null)
@@ -56,6 +69,10 @@ public class Vehicle : MonoBehaviour
         {
             return;
         }
+        if (backend.truck == null) { return; }
+        if (backend.truck.state == null) { return; }
+
+        float brightness = GetLightState(backend.truck.state.time);
 
         int[] uids = new int[backend.world.traffic.Length];
         for (int i = 0; i < backend.world.traffic.Length; i++)
@@ -121,11 +138,13 @@ public class Vehicle : MonoBehaviour
                 trailers[i].transform.GetChild(0).gameObject.SetActive(false); // user_trailer
                 trailers[i].transform.GetChild(1).gameObject.SetActive(true);  // traffic_caravan
                 trailers[i].transform.GetChild(1).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
+                trailers[i].transform.GetChild(1).GetComponent<VehicleLights>().lightIntensity = brightness;
             }
             else
             {
                 trailers[i].transform.GetChild(0).gameObject.SetActive(true); // user_trailer
                 trailers[i].transform.GetChild(0).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
+                trailers[i].transform.GetChild(0).GetComponent<VehicleLights>().lightIntensity = brightness;
                 trailers[i].transform.GetChild(1).gameObject.SetActive(false);  // traffic_caravan
             }
 
@@ -163,7 +182,7 @@ public class Vehicle : MonoBehaviour
             case "car":
                 EnableChild(0);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(0, new Color(0.5f, 0.9f, 1.0f));
+                    ColorChild(0, new Color(0.3f, 0.7f, 0.8f));
                 else
                     ColorChild(0, new Color(0.5f, 0.5f, 0.5f));
 
@@ -171,7 +190,7 @@ public class Vehicle : MonoBehaviour
             case "van":
                 EnableChild(1);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(1, new Color(0.5f, 0.9f, 1.0f));
+                    ColorChild(1, new Color(0.3f, 0.7f, 0.8f));
                 else
                     ColorChild(1, new Color(0.5f, 0.5f, 0.5f));
 
@@ -179,7 +198,7 @@ public class Vehicle : MonoBehaviour
             case "bus":
                 EnableChild(2);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(2, new Color(0.5f, 0.9f, 1.0f));
+                    ColorChild(2, new Color(0.3f, 0.7f, 0.8f));
                 else
                     ColorChild(2, new Color(0.5f, 0.5f, 0.5f));
 
@@ -187,7 +206,7 @@ public class Vehicle : MonoBehaviour
             case "truck":
                 EnableChild(3);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(3, new Color(0.5f, 0.9f, 1.0f));
+                    ColorChild(3, new Color(0.3f, 0.7f, 0.8f));
                 else
                     ColorChild(3, new Color(0.5f, 0.5f, 0.5f));
 
@@ -195,7 +214,7 @@ public class Vehicle : MonoBehaviour
             case "trailer":
                 EnableChild(4);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(4, new Color(0.5f, 0.9f, 1.0f));
+                    ColorChild(4, new Color(0.3f, 0.7f, 0.8f));
                 else
                     ColorChild(4, new Color(0.5f, 0.5f, 0.5f));
 
@@ -203,6 +222,6 @@ public class Vehicle : MonoBehaviour
         }
 
         lights.isBraking = self.acceleration < -1 || self.speed < 0.1;
-        //lights.lightIntensity = 0;
+        lights.lightIntensity = brightness;
     }
 }
