@@ -9,11 +9,14 @@ public class TargetSpeed : MonoBehaviour
     private TMP_Text targetspeed;
     private TMP_Text set;
 
+    Theme theme;
+
     void Start()
     {
         targetspeed = GetComponent<TMP_Text>();
         set = transform.GetChild(0).GetComponent<TMP_Text>();
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
     }
 
     // Update is called once per frame
@@ -37,8 +40,8 @@ public class TargetSpeed : MonoBehaviour
 
         if (backend.world.status.enabled != null)
         {
-            targetspeed.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(1, 1, 1, 1);
-            set.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? new Color(0, 170/255f, 200/255f, 1f) : new Color(0,0,0,0);
+            targetspeed.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? theme.enabled : theme.text;
+            set.color = backend.world.status.enabled.Contains("AdaptiveCruiseControl") ? theme.enabled : new Color(0,0,0,0);
         }
     }
 }

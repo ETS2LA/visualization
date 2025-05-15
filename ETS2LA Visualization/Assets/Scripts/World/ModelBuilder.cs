@@ -10,9 +10,12 @@ public class ModelBuilder : MonoBehaviour
     public Material material;
     private Mesh cube;
 
+    Theme theme;
+
     void Start()
     {
         backend = GameObject.Find("Map Data").GetComponent<BackendWebrequests>();
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
         GameObject cube_object = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube = cube_object.GetComponent<MeshFilter>().sharedMesh;
         cube_object.SetActive(false);
@@ -49,6 +52,7 @@ public class ModelBuilder : MonoBehaviour
                 model_object.AddComponent<MeshRenderer>();
                 model_object.GetComponent<MeshFilter>().mesh = cube;
                 model_object.GetComponent<MeshRenderer>().material = material; 
+                model_object.GetComponent<MeshRenderer>().material.color = theme.buildings;
 
                 model_object.transform.position = new Vector3(model.z, model.y + (model.description.height * model.scale.y) / 2, model.x);
                 model_object.transform.localScale = new Vector3(model.description.length * model.scale.z, model.description.height * model.scale.y, model.description.width * model.scale.x);

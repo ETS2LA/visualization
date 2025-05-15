@@ -14,6 +14,8 @@ public class TrafficLightOverlay : MonoBehaviour
     public int target_index;
     private Camera main_cam;
 
+    Theme theme;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -21,6 +23,7 @@ public class TrafficLightOverlay : MonoBehaviour
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
         traffic_light_builder = GameObject.Find("TrafficLights").GetComponent<TrafficLightBuilder>();
         main_cam = Camera.main;
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
     }
 
     Color state_text_to_color(string text)
@@ -34,7 +37,7 @@ public class TrafficLightOverlay : MonoBehaviour
             case "Green":
                 return new Color(47/255, 255/255, 117/255);
             default:
-                return new Color(1, 1, 1);
+                return theme.text;
         }
     }
 
@@ -121,8 +124,11 @@ public class TrafficLightOverlay : MonoBehaviour
         time_text += "s";
 
         time.text = time_text;
+        time.color = theme.text;
+
         to.text = "> " + next_state_text.ToUpper();
         to.color = next_color;
+        
         current.text = state_text.ToUpper();
         current.color = current_color;
 
@@ -131,6 +137,12 @@ public class TrafficLightOverlay : MonoBehaviour
         
         // Scale is 0.8 at 30m distance
         float scale = 0.8f / (distance / 30);
+
+        if (screen_target.z < 0)
+        {
+            transform.GetChild(0).gameObject.SetActive(false);
+            return;
+        }
         
         if (screen_distance > 25)
         {

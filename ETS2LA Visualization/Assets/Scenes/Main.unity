@@ -16,9 +16,9 @@ RenderSettings:
   serializedVersion: 10
   m_Fog: 1
   m_FogColor: {r: 0.101960786, g: 0.101960786, b: 0.101960786, a: 1}
-  m_FogMode: 3
+  m_FogMode: 1
   m_FogDensity: 0.0075
-  m_LinearFogStart: 0
+  m_LinearFogStart: 150
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -254,6 +255,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 91210122}
   m_CullTransparentMesh: 0
+--- !u!1 &106361304
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 106361306}
+  - component: {fileID: 106361305}
+  m_Layer: 0
+  m_Name: Theme
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &106361305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106361304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 240cf184bdcd8b04f80462b55a749c71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  darkTheme: {fileID: 11400000, guid: 2134cd8f9e6969442866e3d5ab34652c, type: 2}
+  lightTheme: {fileID: 11400000, guid: a43b81b2eb1049c4b90c68ecf6ce7fe5, type: 2}
+  currentTheme: {fileID: 0}
+--- !u!4 &106361306
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106361304}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2029.47, y: 571.31396, z: 0.014901111}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &116859703
 GameObject:
   m_ObjectHideFlags: 0
@@ -4280,6 +4328,7 @@ MonoBehaviour:
   enabled_color: {r: 0, g: 0.57254905, b: 0.77254903, a: 1}
   disabled_color: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 1}
   last_data: []
+  theme: {fileID: 0}
 --- !u!4 &1296189659
 Transform:
   m_ObjectHideFlags: 0
@@ -5843,6 +5892,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 286160402}
+  - {fileID: 106361306}
   - {fileID: 116859704}
   - {fileID: 1793073185}
   - {fileID: 1665939203}

@@ -5,9 +5,14 @@ public class SteeringLine : MonoBehaviour
 {
     public BackendSocket backend;
     public GameObject truck;
-    public Color enabled_color = new Color(0, 146/255f, 197/255f, 1f);
-    public Color disabled_color = new Color(146/255f, 146/255f, 146/255f, 1f);
     public Vector3[] last_data = new Vector3[0];
+
+    public Theme theme;
+
+    void Start()
+    {
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
+    }
 
     // Update is called once per frame
     void Update()
@@ -25,9 +30,9 @@ public class SteeringLine : MonoBehaviour
 
         if (backend.world.status.enabled != null)
         {
-            material.SetColor("_base_color", backend.world.status.enabled.Contains("Map") ? enabled_color : disabled_color);
+            material.SetColor("_base_color", backend.world.status.enabled.Contains("Map") ? theme.lineEnabled : theme.lineDisabled);
         }
-        
+
         if(backend.truck.steering != last_data)
         {
             last_data = backend.truck.steering;

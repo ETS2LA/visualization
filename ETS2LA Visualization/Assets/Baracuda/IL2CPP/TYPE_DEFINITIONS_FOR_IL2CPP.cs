@@ -5,7 +5,7 @@
 //---------- -------------------------- -------
 
 //Runtime Monitoring
-//File generated: 2025-05-14 21:48:25Z
+//File generated: 2025-05-15 20:45:07Z
 //Please dont change the contents of this file. Otherwise IL2CPP runtime may not work with runtime monitoring!
 //Ensure that this file is located in Assembly-CSharp. Otherwise this file may not compile.
 //If this file contains any errors please contact me and/or create an issue in the linked repository.
@@ -13,7 +13,7 @@
 
 #if ENABLE_IL2CPP && !DISABLE_MONITORING
 
-internal class IL2CPP_AOT_672GVVX31W39FB253SGP
+internal class IL2CPP_AOT_Y0CMX4S8AIAD175YMWLN
 {
     //Value Processor Method Definitions
 

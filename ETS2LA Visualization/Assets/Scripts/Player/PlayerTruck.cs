@@ -15,6 +15,12 @@ public class PlayerTruck : MonitoredBehaviour
     public float last_sector_x = 0;
     public float last_sector_y = 0;
 
+    Theme theme;
+    void Start()
+    {
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
+    }
+
     Vector3 GlobalToSector(Vector3 global, float sector_x, float sector_y)
     {
         return new Vector3(
@@ -143,5 +149,7 @@ public class PlayerTruck : MonitoredBehaviour
             last_sector_x = backend.truck.transform.sector_x;
             last_sector_y = backend.truck.transform.sector_y;
         }
+    
+        transform.GetChild(1).GetChild(0).gameObject.GetComponent<MeshRenderer>().material.color = theme.baseColor;
     }
 }

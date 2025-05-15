@@ -11,6 +11,8 @@ public class RoadBuilder : MonoBehaviour
     public Material solid_marking_material;
     public Material dashed_marking_material;
 
+    Theme theme;
+
     RoadMarkingType[] GetMarkingsForLane(Road road, int lane_index)
     {
         bool no_lanes = road.road_look.name.Contains("no lanes") || road.road_look.name.Contains("dirt");
@@ -138,6 +140,11 @@ public class RoadBuilder : MonoBehaviour
         return new RoadMarkingType[] { left_marking, right_marking };
     }
 
+    void Start()
+    {
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
+    }
+
     void Update()
     {
         if (backend == null)
@@ -152,6 +159,11 @@ public class RoadBuilder : MonoBehaviour
         {
             return;
         }
+
+        base_material.color = theme.asphalt;
+        solid_marking_material.color = theme.markings;
+        dashed_marking_material.color = theme.markings;
+
         if (backend.roads_count > 0)
         {
             List<string> roads_to_not_remove = new List<string>();

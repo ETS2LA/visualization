@@ -14,13 +14,15 @@ public class Vehicle : MonoBehaviour
     public GameObject van;
     public GameObject bus;
     public GameObject truck;
-
     public VehicleLights lights;
+
+    Theme theme;
 
     void Start()
     {
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
         trafficBuilder = GameObject.Find("Traffic").GetComponent<TrafficBuilder>();
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
     }
 
     void EnableChild(int index)
@@ -136,6 +138,7 @@ public class Vehicle : MonoBehaviour
             if(type == "car")
             {
                 trailers[i].transform.GetChild(0).gameObject.SetActive(false); // user_trailer
+
                 trailers[i].transform.GetChild(1).gameObject.SetActive(true);  // traffic_caravan
                 trailers[i].transform.GetChild(1).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
                 trailers[i].transform.GetChild(1).GetComponent<VehicleLights>().lightIntensity = brightness;
@@ -145,6 +148,7 @@ public class Vehicle : MonoBehaviour
                 trailers[i].transform.GetChild(0).gameObject.SetActive(true); // user_trailer
                 trailers[i].transform.GetChild(0).GetComponent<VehicleLights>().isBraking = self.acceleration < -1 || self.speed < 0.1;
                 trailers[i].transform.GetChild(0).GetComponent<VehicleLights>().lightIntensity = brightness;
+
                 trailers[i].transform.GetChild(1).gameObject.SetActive(false);  // traffic_caravan
             }
 
@@ -182,41 +186,41 @@ public class Vehicle : MonoBehaviour
             case "car":
                 EnableChild(0);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(0, new Color(0.3f, 0.7f, 0.8f));
+                    ColorChild(0, theme.highlightColor);
                 else
-                    ColorChild(0, new Color(0.5f, 0.5f, 0.5f));
+                    ColorChild(0, theme.baseColor);
 
                 break;
             case "van":
                 EnableChild(1);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(1, new Color(0.3f, 0.7f, 0.8f));
+                    ColorChild(1, theme.highlightColor);
                 else
-                    ColorChild(1, new Color(0.5f, 0.5f, 0.5f));
+                    ColorChild(1, theme.baseColor);
 
                 break;
             case "bus":
                 EnableChild(2);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(2, new Color(0.3f, 0.7f, 0.8f));
+                    ColorChild(2, theme.highlightColor);
                 else
-                    ColorChild(2, new Color(0.5f, 0.5f, 0.5f));
+                    ColorChild(2, theme.baseColor);
 
                 break;
             case "truck":
                 EnableChild(3);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(3, new Color(0.3f, 0.7f, 0.8f));
+                    ColorChild(3, theme.highlightColor);
                 else
-                    ColorChild(3, new Color(0.5f, 0.5f, 0.5f));
+                    ColorChild(3, theme.baseColor);
 
                 break;
             case "trailer":
                 EnableChild(4);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(4, new Color(0.3f, 0.7f, 0.8f));
+                    ColorChild(4, theme.highlightColor);
                 else
-                    ColorChild(4, new Color(0.5f, 0.5f, 0.5f));
+                    ColorChild(4, theme.baseColor);
 
                 break;
         }

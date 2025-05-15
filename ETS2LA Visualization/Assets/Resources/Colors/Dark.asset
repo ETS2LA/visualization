@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cc1f999f752d794ab64a8181830ec43, type: 3}
+  m_Name: Dark
+  m_EditorClassIdentifier: 
+  asphalt: {r: 0.050980393, g: 0.050980393, b: 0.050980393, a: 1}
+  asphaltLight: {r: 0.078431375, g: 0.078431375, b: 0.078431375, a: 1}
+  dirt: {r: 0.078431375, g: 0.05882353, b: 0.039215688, a: 1}
+  markings: {r: 0.43137255, g: 0.43137255, b: 0.43137255, a: 1}
+  sky: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
+  fog: {r: 0.039215688, g: 0.039215688, b: 0.039215688, a: 1}
+  buildings: {r: 0.30980393, g: 0.30980393, b: 0.30980393, a: 0.11764706}
+  baseColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
+  highlightColor: {r: 0.29803923, g: 0.69803923, b: 0.8, a: 1}
+  uiBackground: {r: 0.08627451, g: 0.08627451, b: 0.08627451, a: 1}
+  secondaryBackground: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
+  success: {r: 0.20392157, g: 0.3529412, b: 0.18431373, a: 1}
+  warning: {r: 0.34901962, g: 0.32156864, b: 0.015686275, a: 1}
+  failure: {r: 0.34901962, g: 0.18431373, b: 0.18431373, a: 1}
+  text: {r: 1, g: 1, b: 1, a: 1}
+  enabled: {r: 0, g: 0.6666667, b: 0.78431374, a: 1}
+  disabled: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+  lineEnabled: {r: 0, g: 0.57254905, b: 0.77254903, a: 1}
+  lineDisabled: {r: 0.32941177, g: 0.32941177, b: 0.32941177, a: 1}

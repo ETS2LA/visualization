@@ -8,11 +8,13 @@ public class Speed : MonoBehaviour
     private TMP_Text speed;
     private TMP_Text unit;
 
+    Theme theme;
     void Start()
     {
         speed = GetComponent<TMP_Text>();
         unit = transform.GetChild(0).GetComponent<TMP_Text>();
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
     }
 
     // Update is called once per frame
@@ -35,5 +37,8 @@ public class Speed : MonoBehaviour
             speed.text = math.round(backend.truck.state.speed * 3.6f).ToString();
             unit.text = "km/h";
         }
+
+        speed.color = theme.text;
+        unit.color = theme.text * 0.8f;
     }
 }

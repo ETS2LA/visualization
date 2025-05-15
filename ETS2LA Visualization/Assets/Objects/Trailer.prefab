@@ -1430,6 +1430,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: dc45881dc451c104d98df37818ae1e94, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2ff77e1dd36b4db49b602eb167069536, type: 2}
     - target: {fileID: 919132149155446097, guid: dc45881dc451c104d98df37818ae1e94, type: 3}
       propertyPath: m_Name
       value: user_trailer
@@ -1570,6 +1574,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: 9bfac26946a158d4eacea436f10d88e2, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2ff77e1dd36b4db49b602eb167069536, type: 2}
     - target: {fileID: 919132149155446097, guid: 9bfac26946a158d4eacea436f10d88e2, type: 3}
       propertyPath: m_Name
       value: traffic_caravan

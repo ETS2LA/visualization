@@ -13,11 +13,14 @@ public class HighlightedVehicle : MonoBehaviour
     public int target_uid = -1;
     private Camera main_cam;
 
+    Theme theme;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
         main_cam = Camera.main;
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
     }
 
     // Update is called once per frame
@@ -89,6 +92,9 @@ public class HighlightedVehicle : MonoBehaviour
                     speed.text = target_speed.ToString() + " km/h";
                     distance_text.text = Math.Round(distance, 0).ToString() + " m";
                 }
+
+                speed.color = theme.text;
+                distance_text.color = theme.text * 0.8f;
 
                 if (target_speed_offset > 0)
                 {

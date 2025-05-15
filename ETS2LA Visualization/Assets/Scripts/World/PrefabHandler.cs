@@ -7,14 +7,18 @@ public class PrefabHandler : MonoBehaviour
     public BackendSocket backend;
     public string uid;
 
+    Theme theme;
+
     void Start()
     {
+        theme = FindFirstObjectByType<ThemeHandler>().currentTheme;
+
         uid = gameObject.name.Replace("Prefab ", "");
         lanes = new GameObject[transform.childCount];
         for (int i = 0; i < transform.childCount; i++)
         {
             lanes[i] = transform.GetChild(i).gameObject;
-            lanes[i].GetComponent<Renderer>().material.color = new Color(0.04f, 0.04f, 0.04f);
+            lanes[i].GetComponent<Renderer>().material.color = theme.asphalt;
         }
 
         backend = GameObject.Find("Websocket Data").GetComponent<BackendSocket>();
