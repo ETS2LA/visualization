@@ -8,6 +8,7 @@ public class Theme : ScriptableObject
     public Color asphaltLight;
     public Color dirt;
     public Color markings;
+    public Color railings;
 
     [Header("Environment")]
     public Color sky;

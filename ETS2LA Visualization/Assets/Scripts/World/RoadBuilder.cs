@@ -16,6 +16,7 @@ public class RoadBuilder : MonoBehaviour
     public Material base_material;
     public Material solid_marking_material;
     public Material dashed_marking_material;
+    public Material railing_material;
 
     Theme theme;
 
@@ -161,6 +162,7 @@ public class RoadBuilder : MonoBehaviour
         base_material.color = theme.asphalt;
         solid_marking_material.color = theme.markings;
         dashed_marking_material.color = theme.markings;
+        railing_material.color = theme.railings;
 
         if (backend.roads_count > 0)
         {
@@ -222,12 +224,39 @@ public class RoadBuilder : MonoBehaviour
         }
     }
 
+    bool OneWayRoad(Road road)
+    {
+        string side = road.lanes[0].side;
+        for (int i = 0; i < road.lanes.Length; i++)
+        {
+            if (road.lanes[i].side != side)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    int FirstLaneSideChangeIndex(Road road)
+    {
+        string side = road.lanes[0].side;
+        for (int i = 1; i < road.lanes.Length; i++)
+        {
+            if (road.lanes[i].side != side)
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     private void InstantiateRoad(Road road)
     {
         GameObject road_object = new GameObject("Road " + road.uid);
         road_object.AddComponent<RoadHandler>();
         road_object.GetComponent<RoadHandler>().road = road;
-        
+
         Vector3 average = new Vector3(0, 0, 0);
         for (int i = 0; i < road.points.Length; i++)
         {
@@ -235,13 +264,26 @@ public class RoadBuilder : MonoBehaviour
         }
         road_object.transform.position = average / road.points.Length;
 
-        for(int i = 0; i < road.lanes.Length; i++)
+        bool is_one_way = OneWayRoad(road);
+        int changed = FirstLaneSideChangeIndex(road);
+
+        for (int i = 0; i < road.lanes.Length; i++)
         {
+
+            float left_shoulder = road.road_look.shoulder_space_left;
+            float right_shoulder = road.road_look.shoulder_space_right;
+            if (is_one_way)
+            {
+                float tmp = left_shoulder;
+                left_shoulder = right_shoulder;
+                right_shoulder = tmp;
+            }
+
             // Lane Base
             Lane lane = road.lanes[i];
             Mesh mesh;
-            mesh = lane.CreateMeshAlongPoints(left_shoulder: road.road_look.shoulder_space_left, right_shoulder: road.road_look.shoulder_space_right);
-            GameObject lane_object = new GameObject("Lane " + i.ToString());
+            mesh = lane.CreateMeshAlongPoints(left_shoulder: left_shoulder, right_shoulder: right_shoulder);
+            GameObject lane_object = new GameObject("Lane " + i.ToString() + " " + lane.side);
             lane_object.AddComponent<MeshFilter>().mesh = mesh;
             MeshRenderer mesh_renderer = lane_object.AddComponent<MeshRenderer>();
             mesh_renderer.material = base_material;
@@ -275,7 +317,7 @@ public class RoadBuilder : MonoBehaviour
                 marking_mesh_renderer.material = solid_marking_material;
             }
             marking_object.transform.parent = lane_object.transform;
-        
+
             // Right Side Marking
             marking_mesh = lane.CreateMarkingMesh(Side.RIGHT, right_marking);
             marking_object = new GameObject("Marking Right " + i.ToString() + " " + right_marking.ToString());
@@ -299,6 +341,92 @@ public class RoadBuilder : MonoBehaviour
                 marking_mesh_renderer.material = solid_marking_material;
             }
             marking_object.transform.parent = lane_object.transform;
+
+            // Railings
+            if (road.railings != null && road.railings.Length > 0)
+            {
+                // Is on the outermost lane?
+                if (is_one_way && (i != 0 && i != road.lanes.Length - 1))
+                {
+                    continue;
+                }
+
+                // Check left side outermost lane
+                if (lane.side == "left" && (i != 0 && i != changed))
+                {
+                    continue;
+                }
+
+                // Check right side outermost lane
+                if (lane.side == "right" && (i != road.lanes.Length - 1 && i != changed))
+                {
+                    continue;
+                }
+
+                Railing railing = road.railings[0];
+
+                // Create left railing if defined
+                if (!string.IsNullOrEmpty(railing.left_railing) || railing.left_railing_offset != 0)
+                {
+                    bool render = false;
+                    if (is_one_way)
+                    {
+                        if (i == 0)
+                        {
+                            render = true;
+                        }
+                    }
+                    else
+                    {
+                        if (i == 0 || i == changed)
+                        {
+                            render = true;
+                        }
+                    }
+
+                    if (render)
+                    {
+                        Mesh railing_mesh = lane.CreateRailingMesh(Side.LEFT, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
+                        GameObject railing_object = new GameObject("Railing Left " + i.ToString());
+                        railing_object.transform.parent = lane_object.transform;
+                        railing_object.AddComponent<MeshFilter>().mesh = railing_mesh;
+                        MeshRenderer railing_mesh_renderer = railing_object.AddComponent<MeshRenderer>();
+
+                        railing_mesh_renderer.material = railing_material;
+                    }
+                }
+
+                // Create right railing if defined
+                if (!string.IsNullOrEmpty(railing.right_railing) || railing.right_railing_offset != 0)
+                {
+                    bool render = false;
+                    if (is_one_way)
+                    {
+                        if (i == road.lanes.Length - 1)
+                        {
+                            render = true;
+                        }
+                    }
+                    else
+                    {
+                        if (i == road.lanes.Length - 1 || i == changed - 1)
+                        {
+                            render = true;
+                        }
+                    }
+
+                    if (render)
+                    {
+                        Mesh railing_mesh = lane.CreateRailingMesh(Side.RIGHT, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
+                        GameObject railing_object = new GameObject("Railing Right " + i.ToString());
+                        railing_object.transform.parent = lane_object.transform;
+                        railing_object.AddComponent<MeshFilter>().mesh = railing_mesh;
+                        MeshRenderer railing_mesh_renderer = railing_object.AddComponent<MeshRenderer>();
+
+                        railing_mesh_renderer.material = railing_material;
+                    }
+                }
+            }
         }
 
         road_object.transform.parent = this.transform;

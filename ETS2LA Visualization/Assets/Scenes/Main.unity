@@ -286,7 +286,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   darkTheme: {fileID: 11400000, guid: 2134cd8f9e6969442866e3d5ab34652c, type: 2}
   lightTheme: {fileID: 11400000, guid: a43b81b2eb1049c4b90c68ecf6ce7fe5, type: 2}
-  currentTheme: {fileID: 0}
+  currentTheme: {fileID: 11400000, guid: a43b81b2eb1049c4b90c68ecf6ce7fe5, type: 2}
 --- !u!4 &106361306
 Transform:
   m_ObjectHideFlags: 0
@@ -3210,6 +3210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011b7efd1466d66408a6a475dd1f631e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxPrefabsPerFrame: 2
   backend: {fileID: 2083485857}
   base_material: {fileID: 2100000, guid: 254da417a0d872f4a95e7ab90cf5f064, type: 2}
   solid_marking_material: {fileID: 2100000, guid: f1e58f5d744562f4b8fce9591b1a6b2c, type: 2}
@@ -4325,8 +4326,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backend: {fileID: 1028169603}
   truck: {fileID: 1716119836}
-  enabled_color: {r: 0, g: 0.57254905, b: 0.77254903, a: 1}
-  disabled_color: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 1}
   last_data: []
   theme: {fileID: 0}
 --- !u!4 &1296189659
@@ -4393,10 +4392,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: add20ae2ad7b0f44cbfecf5bb5ee4177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxRoadsPerFrame: 2
   backend: {fileID: 2083485857}
   base_material: {fileID: 2100000, guid: 254da417a0d872f4a95e7ab90cf5f064, type: 2}
   solid_marking_material: {fileID: 2100000, guid: f1e58f5d744562f4b8fce9591b1a6b2c, type: 2}
   dashed_marking_material: {fileID: 2100000, guid: 5eb87bd7dd64c0745abdc5133441326b, type: 2}
+  railing_material: {fileID: 2100000, guid: 79f100fa49e01b443a081319d7704b8b, type: 2}
 --- !u!1 &1503697329
 GameObject:
   m_ObjectHideFlags: 0
