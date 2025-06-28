@@ -79,22 +79,26 @@ public class RoadBuilder : MonoBehaviour
         }
         else if (left_lane_type != null && !left_lane_type.Contains("no_overtake") && (left_lane.side == lane.side || road.lanes.Length == 2))
         {
-            if(no_center_lane)
+            if (no_center_lane)
             {
                 left_marking = RoadMarkingType.NONE;
             }
-            else if(left_lane_type != lane_type)
+            else if (left_lane_type != lane_type)
             {
                 left_marking = RoadMarkingType.DASHED_SHORT;
             }
-            else
+            else if (Vector3.Distance(left_lane.points[0].ToVector3(), lane.points[0].ToVector3()) < 4.7f)
             {
                 left_marking = RoadMarkingType.DASHED;
+            }
+            else
+            {
+                left_marking = RoadMarkingType.SOLID;
             }
         }
         else if (left_lane_type != null && left_lane_type.Contains("no_overtake") && (left_lane.side == lane.side || road.lanes.Length == 2))
         {
-            if(no_center_lane)
+            if (no_center_lane)
             {
                 left_marking = RoadMarkingType.NONE;
             }
@@ -115,22 +119,26 @@ public class RoadBuilder : MonoBehaviour
         }
         if (right_lane_type != null && !right_lane_type.Contains("no_overtake") && (right_lane.side == lane.side || road.lanes.Length == 2))
         {
-            if(no_center_lane)
+            if (no_center_lane)
             {
                 right_marking = RoadMarkingType.NONE;
             }
-            else if(right_lane_type != lane_type)
+            else if (right_lane_type != lane_type)
             {
                 right_marking = RoadMarkingType.DASHED_SHORT;
             }
-            else
+            else if (Vector3.Distance(right_lane.points[0].ToVector3(), lane.points[0].ToVector3()) < 4.7f)
             {
                 right_marking = RoadMarkingType.DASHED;
+            }
+            else
+            {
+                right_marking = RoadMarkingType.SOLID;
             }
         }
         else if (right_lane_type != null && right_lane_type.Contains("no_overtake") && (right_lane.side == lane.side || road.lanes.Length == 2))
         {
-            if(no_center_lane)
+            if (no_center_lane)
             {
                 right_marking = RoadMarkingType.NONE;
             }
@@ -226,6 +234,11 @@ public class RoadBuilder : MonoBehaviour
 
     bool OneWayRoad(Road road)
     {
+        if (road.lanes.Length == 0)
+        {
+            return true;
+        }
+
         string side = road.lanes[0].side;
         for (int i = 0; i < road.lanes.Length; i++)
         {
@@ -240,6 +253,11 @@ public class RoadBuilder : MonoBehaviour
 
     int FirstLaneSideChangeIndex(Road road)
     {
+        if (road.lanes.Length == 0)
+        {
+            return 0;
+        }
+
         string side = road.lanes[0].side;
         for (int i = 1; i < road.lanes.Length; i++)
         {
@@ -352,7 +370,7 @@ public class RoadBuilder : MonoBehaviour
                 }
 
                 // Check left side outermost lane
-                if (lane.side == "left" && (i != 0 && i != changed))
+                if (lane.side == "left" && (i != changed - 1 && i != 0))
                 {
                     continue;
                 }
@@ -378,7 +396,7 @@ public class RoadBuilder : MonoBehaviour
                     }
                     else
                     {
-                        if (i == 0 || i == changed)
+                        if (i == changed - 1 || i == changed)
                         {
                             render = true;
                         }
@@ -386,7 +404,10 @@ public class RoadBuilder : MonoBehaviour
 
                     if (render)
                     {
-                        Mesh railing_mesh = lane.CreateRailingMesh(Side.LEFT, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
+                        Side side = Side.LEFT;
+                        if (!is_one_way && lane.side == "left") { side = Side.RIGHT; }
+
+                        Mesh railing_mesh = lane.CreateRailingMesh(side, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
                         GameObject railing_object = new GameObject("Railing Left " + i.ToString());
                         railing_object.transform.parent = lane_object.transform;
                         railing_object.AddComponent<MeshFilter>().mesh = railing_mesh;
@@ -409,7 +430,7 @@ public class RoadBuilder : MonoBehaviour
                     }
                     else
                     {
-                        if (i == road.lanes.Length - 1 || i == changed - 1)
+                        if (i == road.lanes.Length - 1 || i == 0)
                         {
                             render = true;
                         }
@@ -417,7 +438,10 @@ public class RoadBuilder : MonoBehaviour
 
                     if (render)
                     {
-                        Mesh railing_mesh = lane.CreateRailingMesh(Side.RIGHT, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
+                        Side side = Side.RIGHT;
+                        if (!is_one_way && lane.side == "left") { side = Side.LEFT; }
+
+                        Mesh railing_mesh = lane.CreateRailingMesh(side, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
                         GameObject railing_object = new GameObject("Railing Right " + i.ToString());
                         railing_object.transform.parent = lane_object.transform;
                         railing_object.AddComponent<MeshFilter>().mesh = railing_mesh;

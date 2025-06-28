@@ -30,7 +30,7 @@ public class PrefabCurve
 [System.Serializable]
 public class NavRoute
 {
-    public PrefabCurve[] curves;
+    // public PrefabCurve[] curves;
     public Point[] points;
     public float distance;
 

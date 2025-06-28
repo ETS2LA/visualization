@@ -61,9 +61,14 @@ public class HighlightedVehicle : MonoBehaviour
                     backend.world.traffic[i].position.y + backend.world.traffic[i].size.height / 2, 
                     backend.world.traffic[i].position.x - backend.truck.transform.sector_x
                 );
-                float distance = Vector3.Distance(main_cam.transform.position, target_position);
+                float distance = Vector3.Distance(new Vector3(
+                    backend.truck.transform.z - backend.truck.transform.sector_y,
+                    backend.truck.transform.y,
+                    backend.truck.transform.x - backend.truck.transform.sector_x
+                    ), target_position
+                );
 
-                if(distance > 120)
+                if (distance > 120)
                 {
                     transform.GetChild(0).gameObject.SetActive(false);
                     return;
