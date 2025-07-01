@@ -26,10 +26,11 @@ public class Trailer : MonoBehaviour
         }
         if(backend.world != null && backend.world.highlights != null && backend.world.highlights.vehicles != null && backend.world.highlights.vehicles.Contains(uid))
         {
+            Color color = backend.world.highlights.aeb ? theme.aebColor : theme.highlightColor;
             Material material = transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material;
-            material.color = theme.highlightColor;
+            material.color = color;
             material = transform.GetChild(1).GetChild(0).GetComponent<MeshRenderer>().material;
-            material.color = theme.highlightColor;
+            material.color = color;
         }    
         else
         {

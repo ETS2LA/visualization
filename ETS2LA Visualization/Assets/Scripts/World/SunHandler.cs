@@ -15,24 +15,26 @@ public class SunHandler : MonoBehaviour
     {
         float hour = (time / 60f) % 24f;
         float transitionDuration = 2f;
-
-        // Fade out: 19:00�21:00
+    
+        // Fade out: 19:00 - 21:00
         if (hour >= 19f && hour < 21f)
         {
             float t = (hour - 19f) / transitionDuration;
-            return 1f + 0.5f * (1 + Mathf.Cos(t * Mathf.PI));
+            return 2f - t;
         }
-
-        // Fade in: 6:00�8:00
+    
+        // Fade in: 6:00 - 8:00
         if (hour >= 6f && hour < 8f)
         {
             float t = (hour - 6f) / transitionDuration;
-            return 2f - 0.5f * (1 - Mathf.Cos(t * Mathf.PI));
+            return 1f + t;
         }
-
-        if (hour >= 21f || hour < 8f)
+    
+        // Night time: 21:00 - 6:00
+        if (hour >= 21f || hour < 6f)
             return 1f;
-
+    
+        // Day time: 8:00 - 19:00
         return 2f;
     }
 

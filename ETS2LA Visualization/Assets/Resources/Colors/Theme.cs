@@ -18,6 +18,7 @@ public class Theme : ScriptableObject
     [Header("Vehicles")]
     public Color baseColor;
     public Color highlightColor;
+    public Color aebColor;
 
     [Header("UI")]
     public Color uiBackground;

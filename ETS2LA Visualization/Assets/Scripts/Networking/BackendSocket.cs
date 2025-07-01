@@ -146,11 +146,12 @@ public class BackendSocket : MonitoredBehaviour
     public class TrailerResponse : BaseResponse { public new TrailerResult result; }
     #endregion
 
-    # region Channel 6 - Higlights
+    # region Channel 6 - Highlights
 
     [System.Serializable]
     public class HighlightData
     {
+        public bool aeb;
         public int[] vehicles;
     }
     [System.Serializable]
@@ -195,6 +196,7 @@ public class BackendSocket : MonitoredBehaviour
     # region World
     public class Highlights
     {
+        public bool aeb;
         public int[] vehicles = new int[0];
     }
 
@@ -364,6 +366,7 @@ public class BackendSocket : MonitoredBehaviour
                     HighlightResponse highlight_response = JsonUtility.FromJson<HighlightResponse>(message);
                     HighlightResult highlight_result = highlight_response.result;
                     world.highlights.vehicles = highlight_result.data.vehicles;
+                    world.highlights.aeb = highlight_result.data.aeb;
                     break;
 
                 case 7:

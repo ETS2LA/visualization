@@ -186,7 +186,10 @@ public class Vehicle : MonoBehaviour
             case "car":
                 EnableChild(0);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(0, theme.highlightColor);
+                    if (backend.world.highlights.aeb)
+                        ColorChild(0, theme.aebColor);
+                    else
+                        ColorChild(0, theme.highlightColor);
                 else
                     ColorChild(0, theme.baseColor);
 
@@ -194,7 +197,10 @@ public class Vehicle : MonoBehaviour
             case "van":
                 EnableChild(1);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(1, theme.highlightColor);
+                    if (backend.world.highlights.aeb)
+                        ColorChild(1, theme.aebColor);
+                    else
+                        ColorChild(1, theme.highlightColor);
                 else
                     ColorChild(1, theme.baseColor);
 
@@ -202,7 +208,10 @@ public class Vehicle : MonoBehaviour
             case "bus":
                 EnableChild(2);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(2, theme.highlightColor);
+                    if (backend.world.highlights.aeb)
+                        ColorChild(2, theme.aebColor);
+                    else
+                        ColorChild(2, theme.highlightColor);
                 else
                     ColorChild(2, theme.baseColor);
 
@@ -210,7 +219,10 @@ public class Vehicle : MonoBehaviour
             case "truck":
                 EnableChild(3);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(3, theme.highlightColor);
+                    if (backend.world.highlights.aeb)
+                        ColorChild(3, theme.aebColor);
+                    else
+                        ColorChild(3, theme.highlightColor);
                 else
                     ColorChild(3, theme.baseColor);
 
@@ -218,7 +230,10 @@ public class Vehicle : MonoBehaviour
             case "trailer":
                 EnableChild(4);
                 if(backend.world.highlights != null && backend.world.highlights.vehicles.Contains(uid) && distance < 100)
-                    ColorChild(4, theme.highlightColor);
+                    if (backend.world.highlights.aeb)
+                        ColorChild(4, theme.aebColor);
+                    else
+                        ColorChild(4, theme.highlightColor);
                 else
                     ColorChild(4, theme.baseColor);
 
