@@ -407,6 +407,15 @@ public class RoadBuilder : MonoBehaviour
                         Side side = Side.LEFT;
                         if (!is_one_way && lane.side == "left") { side = Side.RIGHT; }
 
+                        if (side == Side.LEFT && left_marking == RoadMarkingType.DASHED)
+                        {
+                            continue; // Do not render railings on dashed markings (it would be in the middle of the road)
+                        }
+                        if (side == Side.RIGHT && right_marking == RoadMarkingType.DASHED)
+                        {
+                            continue; // Do not render railings on dashed markings (it would be in the middle of the road)
+                        }
+
                         Mesh railing_mesh = lane.CreateRailingMesh(side, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
                         GameObject railing_object = new GameObject("Railing Left " + i.ToString());
                         railing_object.transform.parent = lane_object.transform;
@@ -440,6 +449,15 @@ public class RoadBuilder : MonoBehaviour
                     {
                         Side side = Side.RIGHT;
                         if (!is_one_way && lane.side == "left") { side = Side.LEFT; }
+
+                        if (side == Side.LEFT && left_marking == RoadMarkingType.DASHED)
+                        {
+                            continue; // Do not render railings on dashed markings (it would be in the middle of the road)
+                        }
+                        if (side == Side.RIGHT && right_marking == RoadMarkingType.DASHED)
+                        {
+                            continue; // Do not render railings on dashed markings (it would be in the middle of the road)
+                        }
 
                         Mesh railing_mesh = lane.CreateRailingMesh(side, railing, lane_width: 4.5f, right_shoulder: right_shoulder, left_shoulder: left_shoulder);
                         GameObject railing_object = new GameObject("Railing Right " + i.ToString());

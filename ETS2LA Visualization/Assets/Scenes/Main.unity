@@ -1259,6 +1259,12 @@ MonoBehaviour:
   offset_rotation: {x: 25, y: 0, z: 0}
   stopped_offset_rotation: {x: 30, y: 0, z: 0}
   reverse_offset_rotation: {x: 25, y: 180, z: 0}
+  min_height: 720
+  max_height: 1440
+  min_zoom: 0.5
+  max_zoom: 2
+  current_rotation_y: 0
+  rotation_change_time: 0
   at_0_speed: 55
   at_80_speed: 75
 --- !u!54 &330585549

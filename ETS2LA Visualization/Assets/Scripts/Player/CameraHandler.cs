@@ -1,3 +1,4 @@
+using System;
 using Baracuda.Monitoring;
 using DG.Tweening;
 using Unity.Mathematics;
@@ -17,6 +18,16 @@ public class CameraHandler : MonitoredBehaviour
     public Vector3 stopped_offset_rotation = new Vector3(0, 0, 0);
     [Header("Reverse Offsets")]
     public Vector3 reverse_offset_rotation = new Vector3(0, 0, 0);
+    [Header("Auto Zoom")]
+    public float min_height = 720;
+    public float max_height = 1440;
+    [Header("User Zoom")]
+    public float min_zoom = 0.5f;
+    private float current_zoom = 1.0f;
+    public float max_zoom = 2.0f;
+    [Header("User Transform")]
+    public float current_rotation_y = 0;
+    public float rotation_change_time = 0;
     [Header("FOV")]
     public float at_0_speed = 55;
     public float at_80_speed = 75;
@@ -120,7 +131,46 @@ public class CameraHandler : MonitoredBehaviour
         float length = default_length;
         length += math.abs(additional_rotation_offset.y) / 180 * 100f;
 
-        if(is_stationary)
+        // Zoom the camera out with the additional screen height
+        float screen_height = Screen.height;
+        if (screen_height < min_height)
+        {
+            screen_height = min_height;
+        }
+        if (screen_height > max_height)
+        {
+            screen_height = max_height;
+        }
+        float zoom_factor = (screen_height - min_height) / (max_height - min_height);
+        length += zoom_factor * 20f;
+
+        // Zoom the camera in and out with user input
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            current_zoom -= Input.mouseScrollDelta.y * 0.1f;
+            current_zoom = Mathf.Clamp(current_zoom, min_zoom, max_zoom);
+        }
+
+        length *= current_zoom;
+
+        // User can also rotate the camera
+        if (Input.GetMouseButton(0))
+        {
+            current_rotation_y += Input.GetAxis("Mouse X") * 0.5f;
+            current_rotation_y = Mathf.Clamp(current_rotation_y, -180, 180);
+            additional_rotation_offset.y = current_rotation_y;
+            rotation_change_time = Time.time;
+        }
+        else if (Time.time - rotation_change_time < 2f)
+        {
+            additional_rotation_offset.y = current_rotation_y;
+        }
+        else
+        {   // Reset the rotation if the user is not rotating the camera
+            current_rotation_y = 0;
+        }
+
+        if (is_stationary)
         {
             state = "stationary";
             // Rotate the stopped offset to match the new added rotation
@@ -149,7 +199,7 @@ public class CameraHandler : MonitoredBehaviour
             Vector3 normal_offset = offset * length;
             // Rotate the stopped offset to match the new added rotation
             additional_offset += RotatePointAroundPivot(normal_offset, Vector3.zero, additional_rotation_offset) - normal_offset;
-            
+
             transform.DOLocalMove(normal_offset + additional_offset, lerp_time);
             transform.DOLocalRotate(offset_rotation + additional_rotation_offset, lerp_time);
         }
