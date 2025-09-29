@@ -1762,6 +1762,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 293066982}
+  - {fileID: 2054055950}
   - {fileID: 1350641179}
   - {fileID: 1008680651}
   - {fileID: 1809503196}
@@ -5840,6 +5841,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2035507269}
   m_CullTransparentMesh: 1
+--- !u!1 &2054055949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054055950}
+  - component: {fileID: 2054055951}
+  m_Layer: 0
+  m_Name: Signs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2054055950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054055949}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 481408046}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2054055951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054055949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3164acffb612e64fa1e92ab36a076c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: 34bec0232e64fa44092d0a93a9e35f66, type: 2}
+  lampPrefab: {fileID: 3557251883613894209, guid: d5585165b86fd884fb1fbd3e2a947053, type: 3}
+  speedLimitPrefab: {fileID: 8372352713792592338, guid: ae0f5990e3174324da09a7236c03e52a, type: 3}
+  giveWayPrefab: {fileID: 4761623061587763452, guid: d21361c06c6e82d468b52e40b89b04b1, type: 3}
+  noEntryPrefab: {fileID: 573516266004760411, guid: 3ea6c0a4e6a0a504d941a4bf6a7714dd, type: 3}
+  goLeftHere: {fileID: 3755962862850026151, guid: baa8caf2704957b439dcc52a9b046992, type: 3}
+  goRightHere: {fileID: 1893659990147951146, guid: 60e0f7018e62ac643ae18108cf68890b, type: 3}
+  goAhead: {fileID: 7991075729192913083, guid: 1a56bd31340fc4e4782097dc3697f6a3, type: 3}
+  passBoth: {fileID: 1509261958474510999, guid: 773abec7501b27f468099f8f3c08ad92, type: 3}
+  goLeft: {fileID: 4278354127268111622, guid: fb8f2860aa4280849b5f58594f70cd17, type: 3}
+  goRight: {fileID: 374213674714065898, guid: d24bb148098f75c4fbc74ed8de11c397, type: 3}
+  speedCamera: {fileID: 5329726739342067689, guid: 7c9154e3974160c459b9a4f7673c1b95, type: 3}
+  oneLine: {fileID: 6000718348605568583, guid: 71d4f388fe2ce184c8d531a875676b2a, type: 3}
+  twoLines: {fileID: 6000718348605568583, guid: 12eaa063a5ee05947a8af64947834c78, type: 3}
 --- !u!1 &2083485856
 GameObject:
   m_ObjectHideFlags: 0
@@ -5874,9 +5933,11 @@ MonoBehaviour:
     roads: []
     models: []
     elevations: []
+    signs: []
   roads_count: 0
   prefabs_count: 0
   models_count: 0
+  signs_count: 0
   elevations_count: 0
   ip_address: localhost
 --- !u!4 &2083485858

@@ -15,6 +15,7 @@ public class BackendWebrequests : MonitoredBehaviour
         public Road[] roads;
         public Model[] models;
         public Elevation[] elevations;
+        public Sign[] signs;
     }
 
     [System.Serializable]
@@ -28,6 +29,7 @@ public class BackendWebrequests : MonitoredBehaviour
     [Monitor] public int roads_count = 0;
     [Monitor] public int prefabs_count = 0;
     [Monitor] public int models_count = 0;
+    [Monitor] public int signs_count = 0;
     [Monitor] public int elevations_count = 0;
     [Monitor] private float next_check = 0;
     private string last_update_time = "";
@@ -38,7 +40,7 @@ public class BackendWebrequests : MonitoredBehaviour
     IEnumerator CheckForUpdate()
     {
         yield return StartCoroutine(GetTagData($"http://{ip_address}:37520/api/tags/data", "map_update_time"));
-        if (current_update_time != last_update_time || (roads_count == 0 && prefabs_count == 0 && models_count == 0 && elevations_count == 0))
+        if (current_update_time != last_update_time || (roads_count == 0 && prefabs_count == 0 && models_count == 0 && elevations_count == 0 && signs_count == 0))
         {
             last_update_time = current_update_time;
             yield return StartCoroutine(GetTagData($"http://{ip_address}:37520/api/tags/data", "map"));
@@ -70,6 +72,7 @@ public class BackendWebrequests : MonitoredBehaviour
                         roads_count = map.roads.Length;
                         prefabs_count = map.prefabs.Length;
                         models_count = map.models.Length;
+                        signs_count = map.signs.Length;
                         elevations_count = map.elevations.Length;
                         Debug.Log("Map data updated!");
 

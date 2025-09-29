@@ -297,6 +297,9 @@ public class RoadBuilder : MonoBehaviour
                 right_shoulder = tmp;
             }
 
+            if (left_shoulder < 0) { left_shoulder = 0; }
+            if (right_shoulder < 0) { right_shoulder = 0; }
+
             // Lane Base
             Lane lane = road.lanes[i];
             Mesh mesh;
