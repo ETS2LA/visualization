@@ -52,10 +52,10 @@ public class IPSelector : MonoBehaviour
         // Buttons
         transform.parent.GetChild(2).GetChild(0).GetComponent<Image>().color = theme.success;
         transform.parent.GetChild(2).GetChild(0).GetChild(0).GetComponent<TMP_Text>().color = theme.text * 0.8f;
-        transform.parent.GetChild(2).GetChild(1).GetComponent<Image>().color = theme.failure;
+        transform.parent.GetChild(2).GetChild(1).GetComponent<Image>().color = theme.success;
         transform.parent.GetChild(2).GetChild(1).GetChild(0).GetComponent<TMP_Text>().color = theme.text * 0.8f;
-        transform.parent.GetChild(5).GetComponent<Image>().color = theme.secondaryBackground;
-        transform.parent.GetChild(5).GetChild(0).GetComponent<TMP_Text>().color = theme.text * 0.8f;
+        transform.parent.GetChild(4).GetComponent<Image>().color = theme.secondaryBackground;
+        transform.parent.GetChild(4).GetChild(0).GetComponent<TMP_Text>().color = theme.text * 0.8f;
     }
 
     void Update()
@@ -63,6 +63,14 @@ public class IPSelector : MonoBehaviour
         if (backendSocket.connection.State != WebSocketState.Connected)
         {
             gameObject.transform.parent.gameObject.SetActive(true);
+            if (backendSocket.connection.State != WebSocketState.Disconnected)
+            {
+                transform.parent.GetChild(4).GetChild(0).GetComponent<TMP_Text>().text = backendSocket.connection.State.ToString() + "...";
+            }
+            else
+            {
+                transform.parent.GetChild(4).GetChild(0).GetComponent<TMP_Text>().text = "Retry Connection";
+            }
         }
         else
         {

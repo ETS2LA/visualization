@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class ModelBuilder : MonoBehaviour
 {
-    private List<string> instantiated_models = new List<string>();
+    private Dictionary<string, GameObject> instantiated_models = new Dictionary<string, GameObject>();
+    private int last_model_count = 0;
     private BackendWebrequests backend;
     public Material material;
     private Mesh cube;
@@ -35,14 +36,15 @@ public class ModelBuilder : MonoBehaviour
         {
             return;
         }
-        if (backend.models_count > 0)
+        if (backend.models_count != last_model_count)
         {
+            last_model_count = backend.models_count;
             List<string> models_to_not_remove = new List<string>();
 
             foreach (Model model in backend.map.models)
             {
                 models_to_not_remove.Add(model.uid);
-                if (instantiated_models.Contains(model.uid))
+                if (instantiated_models.ContainsKey(model.uid))
                 {
                     continue;
                 }
@@ -61,14 +63,14 @@ public class ModelBuilder : MonoBehaviour
 
                 model_object.AddComponent<StaticObject>();
                 model_object.GetComponent<StaticObject>().position = model_object.transform.position;
-                
-                instantiated_models.Add(model.uid);
+
+                instantiated_models.Add(model.uid, model_object);
                 model_object.transform.parent = transform;
             }
 
             List<string> models_to_remove = new List<string>();
 
-            foreach (string model in instantiated_models)
+            foreach (string model in instantiated_models.Keys)
             {
                 if (!models_to_not_remove.Contains(model))
                 {
@@ -78,15 +80,8 @@ public class ModelBuilder : MonoBehaviour
 
             foreach (string model in models_to_remove)
             {
-                Destroy(GameObject.Find("Model " + model));
+                Destroy(instantiated_models[model]);
                 instantiated_models.Remove(model);
-            }
-        } 
-        else
-        {
-            foreach (string model in instantiated_models)
-            {
-                Destroy(GameObject.Find("Model " + model));
             }
         }
     }

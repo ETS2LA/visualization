@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class RoadBuilder : MonoBehaviour
 {
-    private List<string> instantiated_roads = new List<string>();
+    private Dictionary<string, GameObject> instantiated_roads = new Dictionary<string, GameObject>();
     private Queue<Road> roads_to_instantiate = new Queue<Road>();
     private Queue<string> roads_to_destroy = new Queue<string>();
+    private int last_road_size = 0;
     // Maximum road processes per frame.
     [SerializeField] private int maxRoadsPerFrame = 2;
 
@@ -174,9 +175,10 @@ public class RoadBuilder : MonoBehaviour
 
         if (backend.roads_count > 0)
         {
-            if (roads_to_instantiate.Count == 0 && roads_to_destroy.Count == 0)
+            if (roads_to_instantiate.Count == 0 && roads_to_destroy.Count == 0 && backend.roads_count != last_road_size)
             {
                 UpdateRoadQueues();
+                last_road_size = backend.roads_count;
             }
 
             for (int i = 0; i < maxRoadsPerFrame && roads_to_instantiate.Count > 0; i++)
@@ -195,7 +197,7 @@ public class RoadBuilder : MonoBehaviour
             // If no roads are available, queue all roads for destruction
             if (instantiated_roads.Count > 0 && roads_to_destroy.Count == 0)
             {
-                foreach (string road in instantiated_roads)
+                foreach (string road in instantiated_roads.Keys)
                 {
                     roads_to_destroy.Enqueue(road);
                 }
@@ -216,14 +218,13 @@ public class RoadBuilder : MonoBehaviour
         foreach (Road road in backend.map.roads)
         {
             roads_to_not_remove.Add(road.uid);
-            
-            if (!instantiated_roads.Contains(road.uid))
+            if (!instantiated_roads.ContainsKey(road.uid))
             {
                 roads_to_instantiate.Enqueue(road);
             }
         }
 
-        foreach (string roadId in instantiated_roads)
+        foreach (string roadId in instantiated_roads.Keys)
         {
             if (!roads_to_not_remove.Contains(roadId))
             {
@@ -477,16 +478,15 @@ public class RoadBuilder : MonoBehaviour
         road_object.transform.parent = this.transform;
         road_object.AddComponent<StaticObject>();
         road_object.GetComponent<StaticObject>().position = road_object.transform.position;
-        instantiated_roads.Add(road.uid);
+        instantiated_roads.Add(road.uid, road_object);
     }
 
     private void DestroyRoad(string roadId)
     {
-        GameObject roadObject = GameObject.Find("Road " + roadId);
-        if (roadObject != null)
+        if (instantiated_roads.TryGetValue(roadId, out GameObject roadObject))
         {
             Destroy(roadObject);
+            instantiated_roads.Remove(roadId);
         }
-        instantiated_roads.Remove(roadId);
     }
 }

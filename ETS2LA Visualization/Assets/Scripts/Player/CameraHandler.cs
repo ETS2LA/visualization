@@ -48,6 +48,17 @@ public class CameraHandler : MonitoredBehaviour
         // unit vector and store then length
         default_length = offset.magnitude;
         offset = offset.normalized;
+
+        Camera cam = GetComponent<Camera>();
+        float[] distances = new float[32];
+
+        for (int i = 0; i < distances.Length; i++)
+            distances[i] = 400f; // Default culling distance for all layers
+
+        int closerLayer = LayerMask.NameToLayer("CullCloser");
+        distances[closerLayer] = 200f; // Smaller culling for small objects for performance
+        cam.layerCullDistances = distances;
+        cam.layerCullSpherical = true;
     }
 
     Vector3 GetAverageSteeringPoint(){

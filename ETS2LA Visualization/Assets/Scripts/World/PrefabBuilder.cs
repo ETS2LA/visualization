@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class PrefabBuilder : MonoBehaviour
 {
-    private List<string> instantiated_prefabs = new List<string>();
+    private Dictionary<string, GameObject> instantiated_prefabs = new Dictionary<string, GameObject>();
+    private int last_prefab_count = 0;
     private Queue<Prefab> prefabs_to_instantiate = new Queue<Prefab>();
     private Queue<string> prefabs_to_destroy = new Queue<string>();
     [SerializeField] private int maxPrefabsPerFrame = 2;
@@ -197,8 +198,9 @@ public class PrefabBuilder : MonoBehaviour
 
         if (backend.prefabs_count > 0)
         {
-            if (prefabs_to_instantiate.Count == 0 && prefabs_to_destroy.Count == 0)
+            if (prefabs_to_instantiate.Count == 0 && prefabs_to_destroy.Count == 0 && backend.prefabs_count != last_prefab_count)
             {
+                last_prefab_count = backend.prefabs_count;
                 UpdatePrefabQueues();
             }
 
@@ -218,7 +220,7 @@ public class PrefabBuilder : MonoBehaviour
             // If no prefabs are available, queue all prefabs for destruction
             if (instantiated_prefabs.Count > 0 && prefabs_to_destroy.Count == 0)
             {
-                foreach (string prefabId in instantiated_prefabs)
+                foreach (string prefabId in instantiated_prefabs.Keys)
                 {
                     prefabs_to_destroy.Enqueue(prefabId);
                 }
@@ -240,13 +242,13 @@ public class PrefabBuilder : MonoBehaviour
         {
             prefabs_to_not_remove.Add(prefab.uid);
             
-            if (!instantiated_prefabs.Contains(prefab.uid))
+            if (!instantiated_prefabs.ContainsKey(prefab.uid))
             {
                 prefabs_to_instantiate.Enqueue(prefab);
             }
         }
 
-        foreach (string prefabId in instantiated_prefabs)
+        foreach (string prefabId in instantiated_prefabs.Keys)
         {
             if (!prefabs_to_not_remove.Contains(prefabId))
             {
@@ -319,15 +321,14 @@ public class PrefabBuilder : MonoBehaviour
             }
         }
 
-        instantiated_prefabs.Add(prefab.uid);
+        instantiated_prefabs.Add(prefab.uid, prefab_object);
         prefab_object.AddComponent<StaticObject>();
         prefab_object.GetComponent<StaticObject>().position = prefab_object.transform.position;
     }
 
     private void DestroyPrefab(string prefabId)
     {
-        GameObject prefabObject = GameObject.Find("Prefab " + prefabId);
-        if (prefabObject != null)
+        if (instantiated_prefabs.TryGetValue(prefabId, out GameObject prefabObject))
         {
             Destroy(prefabObject);
         }

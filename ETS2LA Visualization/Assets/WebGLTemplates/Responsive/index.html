@@ -34,7 +34,7 @@
         productName: "{{{ PRODUCT_NAME }}}",
         productVersion: "{{{ PRODUCT_VERSION }}}",
         // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+        devicePixelRatio: window.devicePixelRatio || 1, // Uncomment this to override low DPI rendering on high DPI displays.
       }, (progress) => {
         var bar = document.getElementById('loading-bar');
         if (bar) {

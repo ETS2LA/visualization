@@ -294,7 +294,6 @@ public class BackendSocket : MonitoredBehaviour
     {
         if (connection.State == WebSocketState.Disconnected && Time.time - last_connection_retry > connection_retry_time)
         {
-            Debug.LogError("Connection lost...");
             return;
         }
 

@@ -3,8 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="manifest" href="manifest.json">
     <title>ETS2LA Visualization</title>
   </head>
   <body style="text-align: center">
@@ -28,7 +26,7 @@
         productName: "ETS2LA Visualization",
         productVersion: "0.1.0",
         // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+        devicePixelRatio: window.devicePixelRatio || 1, // Uncomment this to override low DPI rendering on high DPI displays.
       }, (progress) => {
         var bar = document.getElementById('loading-bar');
         if (bar) {

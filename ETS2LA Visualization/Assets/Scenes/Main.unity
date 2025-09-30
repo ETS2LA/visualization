@@ -373,7 +373,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 34}
+  m_SizeDelta: {x: 400, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &167269678
 MonoBehaviour:
@@ -544,7 +544,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &202821593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -565,8 +565,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "It seems like you are connected to this website via <color=\"red\">HTTPS</color>.
-    \nPlease use basic <color=\"yellow\">HTTP</color> instead (with Firefox for example)."
+  m_text: It seems like you are connected to this website via <color="red">HTTPS</color>.
+    Please use basic <color="yellow">HTTP</color> instead (with Firefox for example)
+    if you're not inside the ETS2LA app window.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
   m_sharedMaterial: {fileID: 265791378333969976, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
@@ -593,8 +594,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14.6
-  m_fontSizeBase: 14.6
+  m_fontSize: 10
+  m_fontSizeBase: 10
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -659,10 +660,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 362267940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 961.2204, y: -331.58002}
-  m_SizeDelta: {x: 429.73, y: 31.372}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 422.3779, y: 71.0545}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &257275303
 GameObject:
@@ -1100,7 +1101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   traffic_lights: []
-  traffic_light_prefab: {fileID: 1653125729152281913, guid: b1504cfaa211d5c4797e0d64854b313d, type: 3}
+  traffic_light_prefab: {fileID: 919132149155446097, guid: 775c5f0e44663ed4b93fc10492cf5b79, type: 3}
   backend: {fileID: 1028169603}
 --- !u!1 &330585543
 GameObject:
@@ -1328,7 +1329,6 @@ RectTransform:
   - {fileID: 979018183}
   - {fileID: 202821595}
   - {fileID: 1769124058}
-  - {fileID: 1700445952}
   - {fileID: 167269677}
   - {fileID: 1233346204}
   m_Father: {fileID: 1995981168}
@@ -1377,7 +1377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.07450981, g: 0.07450981, b: 0.07450981, a: 1}
+  m_Color: {r: 0.07450981, g: 0.07450981, b: 0.08627451, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1517,7 +1517,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 150
   field of view: 70
   orthographic: 0
   orthographic size: 5
@@ -1807,7 +1807,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 145, y: 30}
+  m_SizeDelta: {x: 195, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &484708773
 MonoBehaviour:
@@ -2254,7 +2254,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Remote Connection
+  m_text: Attempt Remote Connection
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
   m_sharedMaterial: {fileID: 265791378333969976, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
@@ -2955,7 +2955,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Local Connection
+  m_text: Attempt Local Connection
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
   m_sharedMaterial: {fileID: 265791378333969976, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
@@ -3069,7 +3069,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 60}
+  m_SizeDelta: {x: 421.4905, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &979018184
 MonoBehaviour:
@@ -3091,10 +3091,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Failed to connect to the backend.
-
-    Please ensure that <color="yellow">Visualization
-    Sockets</color> is enabled.'
+  m_text: Failed to connect to the ETS2LA backend. Please ensure that you have enabled
+    the Visualization plugins in the <color="yellow">Manager</color> tab on the left.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
   m_sharedMaterial: {fileID: 265791378333969976, guid: 89fbe18a8a7aba04b9e9c0533d641e3e, type: 2}
@@ -3507,7 +3505,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 150
   field of view: 70
   orthographic: 0
   orthographic size: 5
@@ -3844,7 +3842,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 30}
+  m_SizeDelta: {x: 400, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1233346205
 MonoBehaviour:
@@ -4546,7 +4544,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 145, y: 30}
+  m_SizeDelta: {x: 195, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1566244197
 MonoBehaviour:
@@ -4617,7 +4615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25490198, g: 0.12941177, b: 0.13346373, a: 1}
+  m_Color: {r: 0.2924528, g: 0.29107332, b: 0.29111642, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4929,41 +4927,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1700445951
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1700445952}
-  m_Layer: 5
-  m_Name: Spacer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1700445952
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1700445951}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 362267940}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 12.84}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1716119836
 GameObject:
   m_ObjectHideFlags: 0
@@ -5172,7 +5135,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 30}
+  m_SizeDelta: {x: 400, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1769124059
 MonoBehaviour:
@@ -5885,18 +5848,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3164acffb612e64fa1e92ab36a076c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: 34bec0232e64fa44092d0a93a9e35f66, type: 2}
-  lampPrefab: {fileID: 3557251883613894209, guid: d5585165b86fd884fb1fbd3e2a947053, type: 3}
-  speedLimitPrefab: {fileID: 8372352713792592338, guid: ae0f5990e3174324da09a7236c03e52a, type: 3}
-  giveWayPrefab: {fileID: 4761623061587763452, guid: d21361c06c6e82d468b52e40b89b04b1, type: 3}
-  noEntryPrefab: {fileID: 573516266004760411, guid: 3ea6c0a4e6a0a504d941a4bf6a7714dd, type: 3}
   goLeftHere: {fileID: 3755962862850026151, guid: baa8caf2704957b439dcc52a9b046992, type: 3}
   goRightHere: {fileID: 1893659990147951146, guid: 60e0f7018e62ac643ae18108cf68890b, type: 3}
   goAhead: {fileID: 7991075729192913083, guid: 1a56bd31340fc4e4782097dc3697f6a3, type: 3}
   passBoth: {fileID: 1509261958474510999, guid: 773abec7501b27f468099f8f3c08ad92, type: 3}
   goLeft: {fileID: 4278354127268111622, guid: fb8f2860aa4280849b5f58594f70cd17, type: 3}
   goRight: {fileID: 374213674714065898, guid: d24bb148098f75c4fbc74ed8de11c397, type: 3}
+  stopSign: {fileID: 5478653521468922843, guid: becfeb80231687c4b89d0c70ead650fd, type: 3}
+  lampPrefab: {fileID: 3557251883613894209, guid: d5585165b86fd884fb1fbd3e2a947053, type: 3}
+  speedLimitPrefab: {fileID: 8372352713792592338, guid: ae0f5990e3174324da09a7236c03e52a, type: 3}
+  noLimitsPrefab: {fileID: 2062797738671711109, guid: dbe48a86cd755cc4abe6d2b3931df529, type: 3}
+  giveWayPrefab: {fileID: 4761623061587763452, guid: d21361c06c6e82d468b52e40b89b04b1, type: 3}
+  mainRoadPrefab: {fileID: 1053052368151039730, guid: 1deb345ad6d674047a73bd4c1c4060f8, type: 3}
+  noEntryPrefab: {fileID: 573516266004760411, guid: 3ea6c0a4e6a0a504d941a4bf6a7714dd, type: 3}
   speedCamera: {fileID: 5329726739342067689, guid: 7c9154e3974160c459b9a4f7673c1b95, type: 3}
+  reflectivePost: {fileID: 4422848339453165749, guid: dc71e8ea743e47b4e8ffdcc91a20fd3d, type: 3}
   oneLine: {fileID: 6000718348605568583, guid: 71d4f388fe2ce184c8d531a875676b2a, type: 3}
   twoLines: {fileID: 6000718348605568583, guid: 12eaa063a5ee05947a8af64947834c78, type: 3}
 --- !u!1 &2083485856

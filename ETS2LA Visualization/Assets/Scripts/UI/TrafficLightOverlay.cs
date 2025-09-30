@@ -57,7 +57,7 @@ public class TrafficLightOverlay : MonoBehaviour
 
         Vector3 target_position = new Vector3(
             traffic_light_builder.traffic_lights[target_index].transform.position.x, 
-            traffic_light_builder.traffic_lights[target_index].transform.position.y, 
+            traffic_light_builder.traffic_lights[target_index].transform.position.y + 5f, 
             traffic_light_builder.traffic_lights[target_index].transform.position.z
         );
 

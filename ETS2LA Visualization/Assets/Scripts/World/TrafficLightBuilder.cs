@@ -63,11 +63,10 @@ public class TrafficLightBuilder : MonoBehaviour
                 }
                 Vector3 position = new Vector3(
                     traffic_light.position.z + 512 * traffic_light.cy,
-                    traffic_light.position.y + 4f, 
+                    traffic_light.position.y, 
                     traffic_light.position.x + 512 * traffic_light.cx
                 );
-                GameObject traffic_light_object = Instantiate(traffic_light_prefab, position, Quaternion.Euler(traffic_light.rotation.pitch, -traffic_light.rotation.yaw + 90, traffic_light.rotation.roll));
-                traffic_light_object.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                GameObject traffic_light_object = Instantiate(traffic_light_prefab, position, Quaternion.Euler(traffic_light.rotation.pitch, -traffic_light.rotation.yaw - 90, traffic_light.rotation.roll));
                 traffic_light_object.name = "Traffic Light " + traffic_light.uid;
 
                 traffic_light_object.AddComponent<StaticObject>();
