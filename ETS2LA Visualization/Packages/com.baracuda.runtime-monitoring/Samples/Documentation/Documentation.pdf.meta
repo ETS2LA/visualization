@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 7d2ebe72537954f453d85a545a93bfc2
-AssetOrigin:
-  serializedVersion: 1
-  productId: 222328
-  packageName: Runtime Monitoring
-  packageVersion: 3.6.0
-  assetPath: Packages/com.baracuda.runtime-monitoring/Samples~/Documentation/Documentation.pdf
-  uploadId: 655543
