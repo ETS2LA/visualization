@@ -50,6 +50,7 @@ export class LocalWsProvider implements DataProvider {
                 if (fastSocketOpen && dataSocketOpen) {
                     this.fastSocket = fastSocket;
                     this.dataSocket = dataSocket;
+                    console.log('Websockets connected.');
                     resolve();
                 }
             };

@@ -12,9 +12,9 @@ export class DummyProvider implements DataProvider {
         setInterval(() => {
             const dummyFrame: DataFrame = {
                 timestamp: Date.now(),
-                telemetry: {
-                    position: { x: 0, y: 0, z: 0 },
-                    rotation: { x: 0, y: 0, z: 0, w: 1 }
+                telemetryData: {
+                    position: { X: 0, Y: 0, Z: 0 },
+                    rotation: { X: 0, Y: 0, Z: 0, W: 1 }
                 },
                 vehicles: [],
                 nodes: {},

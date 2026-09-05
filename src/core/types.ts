@@ -1,14 +1,14 @@
-export interface Vector3 { x: number; y: number; z: number; }
+export interface Vector3 { X: number; Y: number; Z: number; }
 export interface Coordinate extends Vector3 { }
 export interface LocalCoordinate extends Coordinate { cx: number; cz: number; }
-export interface Quaternion extends Vector3 { w: number; }
+export interface Quaternion extends Vector3 { W: number; }
 
 export type Uid = number;
 
 export interface Node {
-    id: Uid;
-    position: Coordinate;
-    rotation: Quaternion;
+  id: Uid;
+  position: Coordinate;
+  rotation: Quaternion;
 }
 
 export interface RoadSegment {
@@ -16,23 +16,27 @@ export interface RoadSegment {
   node: string;          // Start
   forwardNode: string;   // End
   laneOffsets: number[];
+  leftLaneCount: number;
+  rightLaneCount: number;
 }
 
-export interface BaseVehicle {
-    position: Coordinate;
-    rotation: Quaternion;
-    size: Vector3;
+export interface Vehicle 
+{
+  id: Uid;
+  position: Coordinate;
+  rotation: Quaternion;
+  size: Vector3;
 }
 
 export interface DataFrame {
   timestamp: number;
 
-  telemetry: {
+  telemetryData: {
     position: Coordinate; 
     rotation: Quaternion;
   };
 
   nodes: Record<Uid, Node>;
   roads: RoadSegment[];
-  vehicles: BaseVehicle[];
+  vehicles: Vehicle[];
 }
