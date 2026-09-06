@@ -81,6 +81,7 @@ export class LocalWsProvider implements DataProvider {
 
             dataSocket.onmessage = (event) => {
                 const message: StaticDataMessage = JSON.parse(event.data);
+                console.log('Received static data update:', message);
 
                 // Additions
                 for (const nodeId in message.add.nodes) {

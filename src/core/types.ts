@@ -20,12 +20,45 @@ export interface RoadSegment {
   rightLaneCount: number;
 }
 
+export interface AxisAlignedBoundingBox {
+  min: Vector3;
+  max: Vector3;
+}
+
+export interface ModelPiece {
+  boundingBox: AxisAlignedBoundingBox;
+  boundingBoxCenter: Vector3;
+}
+
+export interface ModelPart {
+  pieces: ModelPiece[];
+}
+
+export interface Model {
+  look: string; // The name of the file: /def/world/*/model_name.sii
+  name: string; // The name of the model as defined in the .sii file
+  node: Uid;
+  scale: Vector3;
+  boundingBox: AxisAlignedBoundingBox;
+  boundingBoxCenter: Vector3;
+  parts: ModelPart[];
+}
+
+export interface Trailer
+{
+  id: Uid;
+  position: Coordinate;
+  rotation: Quaternion;
+  size: Vector3;
+}
+
 export interface Vehicle 
 {
   id: Uid;
   position: Coordinate;
   rotation: Quaternion;
   size: Vector3;
+  trailers: Trailer[];
 }
 
 export interface DataFrame {
@@ -63,7 +96,7 @@ export class DataFrameInterpolator
     // We don't know when the next frame will arrive, but we can estimate that the next frame will be here
     // in at least (timeDelta * 1.1) milliseconds. This is not an issue, since when lastFrame is updated, it will
     // take the latest interpolated frame meaning there's no hitching.
-    const nextFrameEstimatedTimestamp = currentTimestamp + 100; // TODO: Use timeDelta, why did it not work well? Investigate
+    const nextFrameEstimatedTimestamp = currentTimestamp + 200; // TODO: Use timeDelta, why did it not work well? Investigate
     const t = (timestamp - currentTimestamp) / (nextFrameEstimatedTimestamp - currentTimestamp);
 
     if (t < 0 || t > 1) {
@@ -84,10 +117,25 @@ export class DataFrameInterpolator
       W: interpolate(start.W, end.W),
     });
 
+    const interpolateTrailer = (start: Trailer, end: Trailer): Trailer => ({
+      id: start.id,
+      position: interpolateVector3(start.position, end.position),
+      rotation: interpolateQuaternion(start.rotation, end.rotation),
+      size: end.size, // We're assuming the size doesn't change between frames.
+    });
+
     const interpolateVehicle = (start: Vehicle, end: Vehicle): Vehicle => ({
       id: start.id,
       position: interpolateVector3(start.position, end.position),
       rotation: interpolateQuaternion(start.rotation, end.rotation),
+      trailers: end.trailers.map(endTrailer => {
+        const startTrailer = start.trailers.find(t => t.id === endTrailer.id);
+        if (startTrailer) {
+          return interpolateTrailer(startTrailer, endTrailer);
+        } else {
+          return endTrailer; // If the trailer doesn't exist in the last frame, keep the current frame's trailer.
+        }
+      }),
       size: end.size, // We're assuming the size doesn't change between frames.
     });
 
