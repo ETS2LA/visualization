@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { DataFrame } from '../core/types';
 import type { DataProvider } from '../providers/DataProvider';
+import { DataFrameInterpolator } from '../core/types';
 import { CameraHandler } from './CameraHandler';
 import { VehicleRenderer } from './renderers/VehicleRenderer';
 
@@ -10,6 +11,7 @@ interface VisualizerProps {
 }
 
 export class Visualizer {
+    private interpolator: DataFrameInterpolator;
     private activeProvider: DataProvider | null = null;
     private container: HTMLElement;
     
@@ -33,6 +35,7 @@ export class Visualizer {
         this.scene.background = new THREE.Color(props.backgroundColor ?? 0x1a1a1a);
         
         this.camera = new CameraHandler(this.container);
+        this.interpolator = new DataFrameInterpolator();
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
@@ -66,7 +69,8 @@ export class Visualizer {
     private loop = () => {
         const delta = Date.now() - this.frameTimer;
         this.frameTimer = Date.now();
-        
+
+        this.updateState();
         this.camera.update();
         this.renderer.render(this.scene, this.camera.c);
         this.animationFrameId = requestAnimationFrame(this.loop);
@@ -78,13 +82,19 @@ export class Visualizer {
         }
         
         this.activeProvider = provider;
-        this.activeProvider.onFrame((frame) => this.updateState(frame));
+        this.activeProvider.onFrame((frame) => this.onFrame(frame));
         this.activeProvider.connect();
     }
+
+    private onFrame(frame: DataFrame) {
+        frame.timestamp = Date.now();
+        this.interpolator.setCurrentFrame(frame);
+    }
     
-    private updateState(frame: DataFrame) {
+    private updateState() {
+        const frame = this.interpolator.getInterpolatedFrame(Date.now());
         if (!frame) return;
-        
+
         this.truckMesh?.setRotationFromQuaternion(new THREE.Quaternion(
             -frame.telemetryData.rotation.X,
             frame.telemetryData.rotation.Y,
