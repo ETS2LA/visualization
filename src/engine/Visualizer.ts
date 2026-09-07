@@ -6,6 +6,7 @@ import { CameraHandler } from './CameraHandler';
 import { VehicleRenderer } from './renderers/VehicleRenderer';
 import { NodeRenderer } from './renderers/NodeRenderer';
 import { DebugTextRenderer } from './renderers/DebugRenderer';
+import { RoadRenderer } from './renderers/RoadRenderer';
 
 interface VisualizerProps {
     container: HTMLElement;
@@ -27,6 +28,7 @@ export class Visualizer {
     private vehicleRenderer: VehicleRenderer;
     private nodeRenderer: NodeRenderer;
     private animationFrameId: number | null = null;
+    private roadRenderer: RoadRenderer;
     
     private frameTimer: number = Date.now();
 
@@ -70,7 +72,7 @@ export class Visualizer {
         const truckGeometry = new THREE.BoxGeometry(2, 1, 4);
         const truckMaterial = new THREE.MeshStandardMaterial({ color: 0x00FF00 });
         this.truckMesh = new THREE.Mesh(truckGeometry, truckMaterial);
-        this.truckMesh.position.set(0, -0.5, 0);
+        this.truckMesh.position.set(0, -1.5, 0);
         this.scene.add(this.truckMesh);
 
         this.resizeObserver = new ResizeObserver(() => this.onResize());
@@ -80,7 +82,8 @@ export class Visualizer {
         this.scene.add(this.vehicleRenderer.group);
         this.nodeRenderer = new NodeRenderer();
         this.scene.add(this.nodeRenderer.group);
-
+        this.roadRenderer = new RoadRenderer();
+        this.scene.add(this.roadRenderer.group);
         this.loop();
     }
     
@@ -99,12 +102,15 @@ export class Visualizer {
 
         const avgDelta = this.deltaHistory.reduce((a, b) => a + b, 0) / this.deltaHistory.length;
         const fps = 1000 / avgDelta;
+        // .1% lows
+        const sortedDeltas = [...this.deltaHistory].sort((a, b) => b - a);
+        const low1PercentIndex = Math.floor(sortedDeltas.length * 0.01);
+        const low1PercentDelta = sortedDeltas[low1PercentIndex];
+        const low1PercentFps = 1000 / low1PercentDelta;
 
         this.debugTextRenderer.reset();
-        this.debugTextRenderer.addString(`FPS: ${fps.toFixed(2)}`);
+        this.debugTextRenderer.addString(`FPS: ${fps.toFixed(2)} (0.1% low: ${low1PercentFps.toFixed(2)})`);
         this.debugTextRenderer.addString(`Frame Timestamp: ${this.interpolator.currentFrame?.timestamp ?? 'N/A'}`);
-        this.debugTextRenderer.addString(`Nodes: ${this.nodeRenderer.group.children.length}`);
-        this.debugTextRenderer.addString(`Vehicles: ${this.vehicleRenderer.group.children.length}`);
         
         this.updateState();
         this.camera.update();
@@ -145,6 +151,15 @@ export class Visualizer {
 
         this.nodeRenderer.center = frame.telemetryData.position;
         this.nodeRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
+
+        this.roadRenderer.center = frame.telemetryData.position;
+        this.roadRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
+        this.roadRenderer.updateRoads(frame.roads);
+
+        this.debugTextRenderer.addString(`---`)
+        this.debugTextRenderer.addString(`Nodes: ${Object.keys(frame.nodes).length}`);
+        this.debugTextRenderer.addString(`Roads: ${frame.roads.length}`);
+        this.debugTextRenderer.addString(`Vehicles: ${frame.vehicles.length}`);
     }
     
     private onResize() {

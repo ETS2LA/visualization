@@ -13,9 +13,13 @@ export interface Node {
 
 export interface RoadSegment {
   id: Uid;
-  node: string;          // Start
-  forwardNode: string;   // End
-  laneOffsets: number[];
+  node: Uid;          // Start
+  forwardNode: Uid;   // End
+
+  // Offsets go from left -> right, so the leftmost lane is at index 0 and 
+  // the rightmost lane is at index (laneOffsets.length - 1)
+  laneOffsetsStart: number[];
+  laneOffsetsEnd: number[];
   leftLaneCount: number;
   rightLaneCount: number;
 }
@@ -94,9 +98,9 @@ export class DataFrameInterpolator
     const timeDelta = currentTimestamp - lastTimestamp;
     
     // We don't know when the next frame will arrive, but we can estimate that the next frame will be here
-    // in at least (timeDelta * 1.1) milliseconds. This is not an issue, since when lastFrame is updated, it will
-    // take the latest interpolated frame meaning there's no hitching.
-    const nextFrameEstimatedTimestamp = currentTimestamp + 200; // TODO: Use timeDelta, why did it not work well? Investigate
+    // in at least 200ms. Technically the higher this value is the "smoother" the output will be at the cost of latency.
+    // 200 seems fine for most cases.
+    const nextFrameEstimatedTimestamp = currentTimestamp + 200;
     const t = (timestamp - currentTimestamp) / (nextFrameEstimatedTimestamp - currentTimestamp);
 
     if (t < 0 || t > 1) {
@@ -133,7 +137,7 @@ export class DataFrameInterpolator
         if (startTrailer) {
           return interpolateTrailer(startTrailer, endTrailer);
         } else {
-          return endTrailer; // If the trailer doesn't exist in the last frame, keep the current frame's trailer.
+          return endTrailer;
         }
       }),
       size: end.size, // We're assuming the size doesn't change between frames.
@@ -152,7 +156,7 @@ export class DataFrameInterpolator
         if (lastVehicle) {
           return interpolateVehicle(lastVehicle, currentVehicle);
         } else {
-          return currentVehicle; // If the vehicle doesn't exist in the last frame, keep the current frame's vehicle.
+          return currentVehicle;
         }
       }),
     };
