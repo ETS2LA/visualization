@@ -2,6 +2,7 @@ import type { DataProvider } from './DataProvider';
 import type { 
     DataFrame, 
     Node, 
+    Prefab, 
     RoadSegment,
     Uid, 
 } from '../core/types';
@@ -18,16 +19,19 @@ import type {
 interface StaticData {
     nodes: Record<Uid, Node>;
     roads: Array<RoadSegment>;
+    prefabs: Array<Prefab>;
 }
 
 interface StaticDataMessage {
     add: {
         nodes: Record<Uid, Node>;
         roads: Array<RoadSegment>;
+        prefabs: Array<Prefab>;
     };
     remove: {
         nodes: Uid[];
         roads: Uid[];
+        prefabs: Array<Prefab>;
     }
 }
 
@@ -36,7 +40,7 @@ export class LocalWsProvider implements DataProvider {
     private dataSocket: WebSocket | null = null;
     private frameCallback: ((frame: DataFrame) => void) | null = null;
 
-    private staticData: StaticData = { nodes: {}, roads: [] };
+    private staticData: StaticData = { nodes: {}, roads: [], prefabs: [] };
 
     connect(): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -74,6 +78,7 @@ export class LocalWsProvider implements DataProvider {
                     // We need to inject the static data into the frame.
                     frame.roads = this.staticData.roads;
                     frame.nodes = this.staticData.nodes;
+                    frame.prefabs = this.staticData.prefabs;
 
                     this.frameCallback(frame);
                 }
@@ -88,12 +93,14 @@ export class LocalWsProvider implements DataProvider {
                     this.staticData.nodes[nodeId] = message.add.nodes[nodeId];
                 }
                 this.staticData.roads.push(...message.add.roads);
+                this.staticData.prefabs.push(...message.add.prefabs);
 
                 // Removals
                 for (const nodeId of message.remove.nodes) {
                     delete this.staticData.nodes[nodeId];
                 }
                 this.staticData.roads = this.staticData.roads.filter(road => !message.remove.roads.includes(road.id));
+                this.staticData.prefabs = this.staticData.prefabs.filter(prefab => !message.remove.prefabs.some(removedPrefab => removedPrefab.id === prefab.id));
             };
         });
     }

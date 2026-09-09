@@ -13,6 +13,13 @@ export function interpolatePolyline(start: Node, end: Node, t: number, cachedLen
     return interpolateHermite(start.position, end.position, tanStart, tanEnd, t);
 }
 
+export function interpolatePolylineRaw(startPos: Vector3, endPos: Vector3, startRot: Quaternion, endRot: Quaternion, t: number, cachedLength?: number): Vector3 {
+    const startNode: Node = { id: 0, position: startPos, rotation: startRot };
+    const endNode: Node = { id: 0, position: endPos, rotation: endRot };
+    const { tanStart, tanEnd } = calculateTangents(startNode, endNode, cachedLength);
+    return interpolateHermite(startPos, endPos, tanStart, tanEnd, t);
+}
+
 // public static Vector3 Interpolate(Vector3 p0, Vector3 p1, Vector3 m0, Vector3 m1, float t)
 // {
 //     var t2 = t * t;

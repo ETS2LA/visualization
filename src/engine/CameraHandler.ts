@@ -13,7 +13,7 @@ export class CameraHandler {
     constructor(container: HTMLElement) {
         this.container = container;
 
-        this.offset = { X: 0, Y: 3, Z: -10 }; 
+        this.offset = { X: 0, Y: 15, Z: -25 }; 
         this.truckRotation = { X: 0, Y: 0, Z: 0, W: 1 };
         this.truckPosition = { X: 0, Y: 0, Z: 0 };
         
@@ -71,7 +71,7 @@ export class CameraHandler {
         ).applyQuaternion(quat);
 
         this.c.position.copy(truckPos).add(localOffset);
-        const target = truckPos.clone().add(new THREE.Vector3(0, 1, 0));
+        const target = truckPos.clone().add(new THREE.Vector3(0, 2, 0));
         this.c.lookAt(target);
     }
 }

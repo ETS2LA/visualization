@@ -7,6 +7,7 @@ import { VehicleRenderer } from './renderers/VehicleRenderer';
 import { NodeRenderer } from './renderers/NodeRenderer';
 import { DebugTextRenderer } from './renderers/DebugRenderer';
 import { RoadRenderer } from './renderers/RoadRenderer';
+import { PrefabRenderer } from './renderers/PrefabRenderer';
 
 interface VisualizerProps {
     container: HTMLElement;
@@ -29,6 +30,7 @@ export class Visualizer {
     private nodeRenderer: NodeRenderer;
     private animationFrameId: number | null = null;
     private roadRenderer: RoadRenderer;
+    private prefabRenderer: PrefabRenderer;
     
     private frameTimer: number = Date.now();
 
@@ -63,11 +65,16 @@ export class Visualizer {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement);
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(10, 20, 10);
         this.scene.add(ambientLight, directionalLight);
-        
+
+        this.scene.fog = new THREE.FogExp2(
+            0x1a1a1a, // fog color
+            0.004,      // density
+        );
+
         // temporary truck, we need a model for this
         const truckGeometry = new THREE.BoxGeometry(2, 1, 4);
         const truckMaterial = new THREE.MeshStandardMaterial({ color: 0x00FF00 });
@@ -84,6 +91,9 @@ export class Visualizer {
         this.scene.add(this.nodeRenderer.group);
         this.roadRenderer = new RoadRenderer();
         this.scene.add(this.roadRenderer.group);
+        this.prefabRenderer = new PrefabRenderer();
+        this.scene.add(this.prefabRenderer.group);
+
         this.loop();
     }
     
@@ -156,9 +166,13 @@ export class Visualizer {
         this.roadRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
         this.roadRenderer.updateRoads(frame.roads);
 
+        this.prefabRenderer.center = frame.telemetryData.position;
+        this.prefabRenderer.updatePrefabs(frame.prefabs ? Object.values(frame.prefabs) : []);
+
         this.debugTextRenderer.addString(`---`)
         this.debugTextRenderer.addString(`Nodes: ${Object.keys(frame.nodes).length}`);
         this.debugTextRenderer.addString(`Roads: ${frame.roads.length}`);
+        this.debugTextRenderer.addString(`Prefabs: ${frame.prefabs.length}`);
         this.debugTextRenderer.addString(`Vehicles: ${frame.vehicles.length}`);
     }
     

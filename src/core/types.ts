@@ -15,6 +15,7 @@ export interface RoadSegment {
   id: Uid;
   node: Uid;          // Start
   forwardNode: Uid;   // End
+  length: number;
 
   // Offsets go from left -> right, so the leftmost lane is at index 0 and 
   // the rightmost lane is at index (laneOffsets.length - 1)
@@ -22,6 +23,24 @@ export interface RoadSegment {
   laneOffsetsEnd: number[];
   leftLaneCount: number;
   rightLaneCount: number;
+}
+
+export interface PrefabSegment {
+  startPosition: Coordinate;
+  endPosition: Coordinate;
+  startRotation: Quaternion;
+  endRotation: Quaternion;
+
+  length: number;
+}
+
+export interface Prefab {
+  id: Uid;
+  segments: PrefabSegment[];
+
+  prefabStart: Coordinate;
+  rootNodePosition: Coordinate;
+  prefabRotation: Vector3;
 }
 
 export interface AxisAlignedBoundingBox {
@@ -76,6 +95,7 @@ export interface DataFrame {
   nodes: Record<Uid, Node>;
   roads: RoadSegment[];
   vehicles: Vehicle[];
+  prefabs: Prefab[];
 }
 
 export class DataFrameInterpolator 
@@ -151,6 +171,7 @@ export class DataFrameInterpolator
       },
       nodes: this.currentFrame.nodes,
       roads: this.currentFrame.roads,
+      prefabs: this.currentFrame.prefabs,
       vehicles: this.currentFrame.vehicles.map(currentVehicle => {
         const lastVehicle = this.lastFrame!.vehicles.find(v => v.id === currentVehicle.id);
         if (lastVehicle) {
