@@ -1,6 +1,7 @@
 import type { DataProvider } from './DataProvider';
 import type { 
     DataFrame, 
+    Model, 
     Node, 
     Prefab, 
     RoadSegment,
@@ -20,6 +21,7 @@ interface StaticData {
     nodes: Record<Uid, Node>;
     roads: Array<RoadSegment>;
     prefabs: Array<Prefab>;
+    models: Array<Model>;
 }
 
 interface StaticDataMessage {
@@ -27,11 +29,13 @@ interface StaticDataMessage {
         nodes: Record<Uid, Node>;
         roads: Array<RoadSegment>;
         prefabs: Array<Prefab>;
+        models: Array<Model>;
     };
     remove: {
         nodes: Uid[];
         roads: Uid[];
         prefabs: Array<Prefab>;
+        models: Uid[];
     }
 }
 
@@ -40,7 +44,7 @@ export class LocalWsProvider implements DataProvider {
     private dataSocket: WebSocket | null = null;
     private frameCallback: ((frame: DataFrame) => void) | null = null;
 
-    private staticData: StaticData = { nodes: {}, roads: [], prefabs: [] };
+    private staticData: StaticData = { nodes: {}, roads: [], prefabs: [], models: [] };
 
     connect(): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -79,6 +83,7 @@ export class LocalWsProvider implements DataProvider {
                     frame.roads = this.staticData.roads;
                     frame.nodes = this.staticData.nodes;
                     frame.prefabs = this.staticData.prefabs;
+                    frame.models = this.staticData.models;
 
                     this.frameCallback(frame);
                 }
@@ -94,6 +99,7 @@ export class LocalWsProvider implements DataProvider {
                 }
                 this.staticData.roads.push(...message.add.roads);
                 this.staticData.prefabs.push(...message.add.prefabs);
+                this.staticData.models.push(...message.add.models);
 
                 // Removals
                 for (const nodeId of message.remove.nodes) {
@@ -101,6 +107,7 @@ export class LocalWsProvider implements DataProvider {
                 }
                 this.staticData.roads = this.staticData.roads.filter(road => !message.remove.roads.includes(road.id));
                 this.staticData.prefabs = this.staticData.prefabs.filter(prefab => !message.remove.prefabs.some(removedPrefab => removedPrefab.id === prefab.id));
+                this.staticData.models = this.staticData.models.filter(model => !message.remove.models.some(removedModel => removedModel === model.id))
             };
         });
     }

@@ -8,6 +8,7 @@ import { NodeRenderer } from './renderers/NodeRenderer';
 import { DebugTextRenderer } from './renderers/DebugRenderer';
 import { RoadRenderer } from './renderers/RoadRenderer';
 import { PrefabRenderer } from './renderers/PrefabRenderer';
+import { ModelRenderer } from './renderers/ModelRenderer';
 
 interface VisualizerProps {
     container: HTMLElement;
@@ -31,6 +32,7 @@ export class Visualizer {
     private animationFrameId: number | null = null;
     private roadRenderer: RoadRenderer;
     private prefabRenderer: PrefabRenderer;
+    private modelRenderer: ModelRenderer;
     
     private frameTimer: number = Date.now();
 
@@ -93,6 +95,8 @@ export class Visualizer {
         this.scene.add(this.roadRenderer.group);
         this.prefabRenderer = new PrefabRenderer();
         this.scene.add(this.prefabRenderer.group);
+        this.modelRenderer = new ModelRenderer();
+        this.scene.add(this.modelRenderer.group);
 
         this.loop();
     }
@@ -159,20 +163,25 @@ export class Visualizer {
         this.vehicleRenderer.center = frame.telemetryData.position;
         this.vehicleRenderer.updateVehicles(frame.vehicles);
 
-        this.nodeRenderer.center = frame.telemetryData.position;
-        this.nodeRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
+        // this.nodeRenderer.center = frame.telemetryData.position;
+        // this.nodeRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
 
         this.roadRenderer.center = frame.telemetryData.position;
         this.roadRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
-        this.roadRenderer.updateRoads(frame.roads);
+        this.roadRenderer.updateRoads(frame.roads ? frame.roads : []);
 
         this.prefabRenderer.center = frame.telemetryData.position;
-        this.prefabRenderer.updatePrefabs(frame.prefabs ? Object.values(frame.prefabs) : []);
+        this.prefabRenderer.updatePrefabs(frame.prefabs ? frame.prefabs : []);
+
+        this.modelRenderer.center = frame.telemetryData.position;
+        this.modelRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
+        this.modelRenderer.updateModels(frame.models ? frame.models : []);
 
         this.debugTextRenderer.addString(`---`)
         this.debugTextRenderer.addString(`Nodes: ${Object.keys(frame.nodes).length}`);
         this.debugTextRenderer.addString(`Roads: ${frame.roads.length}`);
         this.debugTextRenderer.addString(`Prefabs: ${frame.prefabs.length}`);
+        this.debugTextRenderer.addString(`Models: ${frame.models.length}`);
         this.debugTextRenderer.addString(`Vehicles: ${frame.vehicles.length}`);
     }
     

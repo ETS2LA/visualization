@@ -58,8 +58,7 @@ export interface ModelPart {
 }
 
 export interface Model {
-  look: string; // The name of the file: /def/world/*/model_name.sii
-  name: string; // The name of the model as defined in the .sii file
+  id: Uid;
   node: Uid;
   scale: Vector3;
   boundingBox: AxisAlignedBoundingBox;
@@ -96,6 +95,7 @@ export interface DataFrame {
   roads: RoadSegment[];
   vehicles: Vehicle[];
   prefabs: Prefab[];
+  models: Model[];
 }
 
 export class DataFrameInterpolator 
@@ -172,6 +172,7 @@ export class DataFrameInterpolator
       nodes: this.currentFrame.nodes,
       roads: this.currentFrame.roads,
       prefabs: this.currentFrame.prefabs,
+      models: this.currentFrame.models,
       vehicles: this.currentFrame.vehicles.map(currentVehicle => {
         const lastVehicle = this.lastFrame!.vehicles.find(v => v.id === currentVehicle.id);
         if (lastVehicle) {

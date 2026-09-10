@@ -1,5 +1,6 @@
 import type { Quaternion, Vector3 } from '../core/types';
 import * as THREE from 'three';
+import { convertQuaternion } from '../core/utils';
 
 export class CameraHandler {
     private container: HTMLElement;
@@ -40,21 +41,7 @@ export class CameraHandler {
     }
 
     public update() {
-        // X is inverted for whatever reason
-        const quat = new THREE.Quaternion(
-            -this.truckRotation.X,
-            this.truckRotation.Y,
-            this.truckRotation.Z,
-            this.truckRotation.W
-        );
-
-        // The camera ends up being upside down, so we need to
-        // flip it right side up...
-        const correction = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1),
-            Math.PI
-        );
-        quat.multiply(correction);
+        const quat = convertQuaternion(this.truckRotation);
 
         const truckPos = new THREE.Vector3(
             this.truckPosition.X,

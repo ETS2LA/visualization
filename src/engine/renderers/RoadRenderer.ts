@@ -558,19 +558,10 @@ export class RoadRenderer {
 
     public updateNodes(nodes: Node[]) {
         for (const node of nodes) {
-            this.nodeMap.set(
-                node.id,
-                node
-            );
+            this.nodeMap.set(node.id,node);
         }
 
-        const newIds =
-            new Set(
-                nodes.map(
-                    (n) => n.id
-                )
-            );
-
+        const newIds =new Set(nodes.map((n) => n.id));
         for (const id of this.nodeMap.keys()) {
             if (!newIds.has(id)) {
                 this.nodeMap.delete(id);
