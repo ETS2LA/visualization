@@ -1,18 +1,25 @@
 import * as THREE from 'three';
 import type { Vehicle, Vector3, Trailer } from '../../core/types';
+import type { Colors } from '../../core/colors';
 
 class RendererVehicle {
     public mesh: THREE.Mesh;
     public vehicle: Vehicle | Trailer;
     private geometry: THREE.BoxGeometry;
     private material: THREE.MeshStandardMaterial;
-    
-    constructor(vehicle: Vehicle | Trailer, center: Vector3 = { X: 0, Y: 0, Z: 0 }) {
+    private colors: Colors;
+
+    constructor(vehicle: Vehicle | Trailer, center: Vector3 = { X: 0, Y: 0, Z: 0 }, colors: Colors) {
         this.vehicle = vehicle;
-        
+        this.colors = colors;
+
         this.geometry = new THREE.BoxGeometry(vehicle.size.X, vehicle.size.Y, vehicle.size.Z);
-        this.material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        this.material = new THREE.MeshStandardMaterial({ color: Number(this.colors.vehicles) });
+        this.material.transparent = true;
+        this.material.opacity = 0.6;
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+        this.mesh.castShadow = true;
         
         this.updateMesh(center);
     }
@@ -46,8 +53,13 @@ export class VehicleRenderer {
     public group: THREE.Group = new THREE.Group();
     private vehicleMap: Map<number, RendererVehicle> = new Map();
     private vehicleTrailers: Map<number, RendererVehicle[]> = new Map();
+    private colors: Colors;
     public center: Vector3 = { X: 0, Y: 0, Z: 0 };
-    
+
+    constructor(colors: Colors) {
+        this.colors = colors;
+    }
+
     public updateVehicles(vehicles: Vehicle[]) {
         const newIds = new Set(vehicles.map((v) => v.id));
         
@@ -62,7 +74,7 @@ export class VehicleRenderer {
                     if (trailerRenderer) {
                         trailerRenderer.updateVehicle(trailer, this.center);
                     } else {
-                        const newTrailerRenderer = new RendererVehicle(trailer, this.center);
+                        const newTrailerRenderer = new RendererVehicle(trailer, this.center, this.colors);
                         this.group.add(newTrailerRenderer.mesh);
                         if (!this.vehicleTrailers.has(vehicle.id)) {
                             this.vehicleTrailers.set(vehicle.id, []);
@@ -71,9 +83,9 @@ export class VehicleRenderer {
                     }
                 }
             } else {
-                const newRendererVehicle = new RendererVehicle(vehicle, this.center);
+                const newRendererVehicle = new RendererVehicle(vehicle, this.center, this.colors);
                 for (const trailer of vehicle.trailers) {
-                    const trailerRenderer = new RendererVehicle(trailer, this.center);
+                    const trailerRenderer = new RendererVehicle(trailer, this.center, this.colors);
                     this.group.add(trailerRenderer.mesh);
                     if (!this.vehicleTrailers.has(vehicle.id)) {
                         this.vehicleTrailers.set(vehicle.id, []);

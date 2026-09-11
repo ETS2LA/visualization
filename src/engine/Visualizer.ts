@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import type { Colors } from '../core/colors';
+import { getColors } from '../core/colors';
 import type { DataFrame } from '../core/types';
 import type { DataProvider } from '../providers/DataProvider';
 import { DataFrameInterpolator } from '../core/types';
@@ -9,10 +11,10 @@ import { DebugTextRenderer } from './renderers/DebugRenderer';
 import { RoadRenderer } from './renderers/RoadRenderer';
 import { PrefabRenderer } from './renderers/PrefabRenderer';
 import { ModelRenderer } from './renderers/ModelRenderer';
+import { createSkyMaterial } from './shaders/GradientSky';
 
 interface VisualizerProps {
     container: HTMLElement;
-    backgroundColor?: number;
 }
 
 export class Visualizer {
@@ -20,7 +22,8 @@ export class Visualizer {
     private activeProvider: DataProvider | null = null;
     private container: HTMLElement;
     private debugTextContainer: HTMLElement | null = null;
-    
+
+    private colors: Colors;
     private scene: THREE.Scene;
     private camera: CameraHandler;
     private renderer: THREE.WebGLRenderer;
@@ -28,7 +31,7 @@ export class Visualizer {
     
     private debugTextRenderer: DebugTextRenderer;
     private vehicleRenderer: VehicleRenderer;
-    private nodeRenderer: NodeRenderer;
+    //private nodeRenderer: NodeRenderer;
     private animationFrameId: number | null = null;
     private roadRenderer: RoadRenderer;
     private prefabRenderer: PrefabRenderer;
@@ -37,15 +40,19 @@ export class Visualizer {
     private frameTimer: number = Date.now();
 
     private truckMesh: THREE.Mesh | null = null;
-    
+
     constructor(props: VisualizerProps) {
+        this.colors = getColors(true);
+
         this.container = props.container;
         this.container.innerHTML = '';
         this.debugTextContainer = document.createElement('div');
         this.debugTextContainer.style.position = 'absolute';
         this.debugTextContainer.style.top = '0';
         this.debugTextContainer.style.left = '0';
-        this.debugTextContainer.style.color = 'white';
+        var color = new THREE.Color(Number(this.colors.text));
+        var hexColor = `#${color.getHexString()}`;
+        this.debugTextContainer.style.color = hexColor;
         this.debugTextContainer.style.fontFamily = 'monospace';
         this.debugTextContainer.style.fontSize = '12px';
         this.debugTextContainer.style.padding = '10px';
@@ -57,8 +64,8 @@ export class Visualizer {
         this.debugTextRenderer = new DebugTextRenderer(this.debugTextContainer);
         
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(props.backgroundColor ?? 0x1a1a1a);
-        
+        THREE.ColorManagement.enabled = false;
+
         this.camera = new CameraHandler(this.container);
         this.interpolator = new DataFrameInterpolator();
         
@@ -67,13 +74,15 @@ export class Visualizer {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement);
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 20, 10);
+        const ambientLight = new THREE.AmbientLight(this.colors.sunColor, this.colors.sunIntensity * 0.5);
+        const directionalLight = new THREE.DirectionalLight(this.colors.sunColor, this.colors.sunIntensity);
+        directionalLight.position.copy(this.colors.sunPosition);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
         this.scene.add(ambientLight, directionalLight);
 
         this.scene.fog = new THREE.FogExp2(
-            0x1a1a1a, // fog color
+            Number(this.colors.groundColor),
             0.004,      // density
         );
 
@@ -86,17 +95,25 @@ export class Visualizer {
 
         this.resizeObserver = new ResizeObserver(() => this.onResize());
         this.resizeObserver.observe(this.container);
-        
-        this.vehicleRenderer = new VehicleRenderer();
+
+        this.vehicleRenderer = new VehicleRenderer(this.colors);
         this.scene.add(this.vehicleRenderer.group);
-        this.nodeRenderer = new NodeRenderer();
-        this.scene.add(this.nodeRenderer.group);
-        this.roadRenderer = new RoadRenderer();
+        //this.nodeRenderer = new NodeRenderer();
+        //this.scene.add(this.nodeRenderer.group);
+        this.roadRenderer = new RoadRenderer(this.colors);
         this.scene.add(this.roadRenderer.group);
-        this.prefabRenderer = new PrefabRenderer();
+        this.prefabRenderer = new PrefabRenderer(this.colors);
         this.scene.add(this.prefabRenderer.group);
-        this.modelRenderer = new ModelRenderer();
+        this.modelRenderer = new ModelRenderer(this.colors);
         this.scene.add(this.modelRenderer.group);
+
+        const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
+        const sky = new THREE.Mesh(skyGeometry, createSkyMaterial(
+            new THREE.Color(Number(this.colors.skyColor)),
+            new THREE.Color(Number(this.colors.skyColor)),
+            new THREE.Color(Number(this.colors.groundColor)),
+        ));
+        this.scene.add(sky);
 
         this.loop();
     }

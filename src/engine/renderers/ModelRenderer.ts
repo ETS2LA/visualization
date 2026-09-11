@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import type { Colors } from '../../core/colors';
 import type { Vector3, Quaternion, Node, Model, ModelPart, ModelPiece } from '../../core/types';
 import { convertQuaternion } from '../../core/utils';
 
-const RENDER_PIECES = false;
+const RENDER_PIECES = true;
 const PIECE_SIZE_TOLERANCE = 20;
 
 class RendererModel {
@@ -17,10 +18,12 @@ class RendererModel {
     public node: Node;
     private geometry: THREE.BoxGeometry;
     private material: THREE.MeshStandardMaterial;
+    private colors: Colors;
 
-    constructor(model: Model, node: Node) {
+    constructor(model: Model, node: Node, colors: Colors) {
         this.model = model;
         this.node = node;
+        this.colors = colors;
 
         if(RENDER_PIECES)
         {
@@ -57,14 +60,13 @@ class RendererModel {
                     }
 
                     sizesSoFar.push({ X: pieceXSize, Y: pieceYSize, Z: pieceZSize });
-
                     const pieceGeometry = new THREE.BoxGeometry(
                         pieceXSize,
                         pieceYSize,
                         pieceZSize
                     );
                     const pieceMaterial = new THREE.MeshStandardMaterial({ 
-                        color: 0x777777,
+                        color: Number(this.colors.buildings),
                         opacity: 0.33,
                         transparent: true
                     });
@@ -109,7 +111,7 @@ class RendererModel {
 
             this.geometry = new THREE.BoxGeometry(xSize, ySize, zSize);
             this.material = new THREE.MeshStandardMaterial({ 
-                color: 0x777777,
+                color: Number(this.colors.buildings),
                 opacity: 0.33,
                 transparent: true
             });
@@ -178,14 +180,19 @@ export class ModelRenderer {
     public group: THREE.Group = new THREE.Group();
     private nodeMap: Map<number, Node> = new Map();
     private modelMap: Map<number, RendererModel> = new Map();
+    private colors: Colors;
     public center: Vector3 = { X: 0, Y: 0, Z: 0 };
+
+    constructor(colors: Colors) {
+        this.colors = colors;
+    }
 
     public updateModels(models: Model[]) {
         for (const model of models) {
             if (!this.modelMap.has(model.node)) {
                 var node = this.nodeMap.get(model.node);
                 if (node) {
-                    const rendererModel = new RendererModel(model, node);
+                    const rendererModel = new RendererModel(model, node, this.colors);
                     this.group.add(rendererModel.group);
                     this.modelMap.set(model.node, rendererModel);
                 }

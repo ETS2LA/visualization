@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { Vector3, Node, RoadSegment } from "../../core/types";
 import { interpolatePolyline } from "../../core/hermite";
+import type { Colors } from "../../core/colors";
 
 // TODO: We need to make this dynamic based on road length and curvature.
 const SEGMENT_COUNT = 30;
@@ -24,23 +25,28 @@ class RendererRoad {
 
     private geometry: THREE.BufferGeometry;
     private material: THREE.ShaderMaterial;
+    private colors: Colors;
 
     constructor(
         road: RoadSegment,
         startNode: Node,
-        endNode: Node
+        endNode: Node,
+        colors: Colors
     ) {
         this.road = road;
         this.startNode = startNode;
         this.endNode = endNode;
+        this.colors = colors;
 
         this.geometry = new THREE.BufferGeometry();
 
         this.material = new THREE.ShaderMaterial({
             transparent: true,
-            uniforms: {
-                asphaltColor: { value: new THREE.Color(0x555555) },
-                lineColor: { value: new THREE.Color(0xdededede) },
+            fog: true,
+            lights: true,
+            uniforms: THREE.UniformsUtils.merge( [ THREE.UniformsLib[ 'fog' ], THREE.UniformsLib[ 'lights' ], {
+                asphaltColor: { value: new THREE.Color(Number(this.colors.asphalt)) },
+                lineColor: { value: new THREE.Color(Number(this.colors.laneMarkings)) },
 
                 laneCentersStart: { value: new Float32Array(MAX_LANES) },
                 laneCentersEnd: { value: new Float32Array(MAX_LANES) },
@@ -50,11 +56,14 @@ class RendererRoad {
                 dashLength: { value: DASH_LENGTH },
                 gapLength: { value: GAP_LENGTH },
 
-                fogColor: { value: new THREE.Color(0x595959) },
+                fogColor: { value: new THREE.Color(Number(this.colors.groundColor)) },
                 fogDensity: { value: 0.004 }
-            },
+            }]),
 
             vertexShader: `
+                #include <common>
+                #include <lights_pars_begin>
+
                 attribute float laneCoord;
                 attribute float roadDistance;
                 attribute float roadT;
@@ -64,59 +73,46 @@ class RendererRoad {
                 varying float vRoadT;
 
                 varying float vFogDepth;
+                varying vec3 vNormal;
 
                 void main() {
                     vLaneCoord = laneCoord;
                     vRoadDistance = roadDistance;
                     vRoadT = roadT;
 
+                    vNormal = normalize(normalMatrix * normal);
+
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
 
                     vFogDepth = -mvPosition.z;
 
-                    gl_Position =
-                        projectionMatrix *
-                        mvPosition;
+                    gl_Position = projectionMatrix * mvPosition;
                 }
             `,
 
             fragmentShader: `
                 uniform vec3 asphaltColor;
                 uniform vec3 lineColor;
-
+                
                 uniform float laneCentersStart[${MAX_LANES}];
                 uniform float laneCentersEnd[${MAX_LANES}];
-
+                
                 uniform int laneCount;
-
+                
                 uniform float lineWidth;
                 uniform float dashLength;
                 uniform float gapLength;
-
+                
                 varying float vLaneCoord;
                 varying float vRoadDistance;
                 varying float vRoadT;
-
+                
                 uniform vec3 fogColor;
                 uniform float fogDensity;
-
+                
                 varying float vFogDepth;
 
                 void main() {
-                    float fogFactor = 1.0 - exp(
-                        -pow(vFogDepth * fogDensity, 2.0)
-                    );
-
-                    fogFactor = clamp(
-                        fogFactor,
-                        0.0,
-                        1.0
-                    );
-
-                    if (fogFactor == 1.0) {
-                        discard;
-                    }
-
                     /*
                      * Find how many lane boundaries are near this fragment.
                      *
@@ -190,17 +186,12 @@ class RendererRoad {
                     if (closestBoundaryDistance >
                         lineWidth + aa * 2.0 && closestBoundaryDistance < ${HALF_LANE_WIDTH}) {
 
-                        vec3 finalColor = mix(
-                            asphaltColor,
-                            fogColor,
-                            fogFactor
-                        );
-
                         gl_FragColor = vec4(
-                            finalColor,
+                            asphaltColor,
                             1.0
                         );
 
+                        #include <fog_fragment>
                         return;
                     }
 
@@ -230,17 +221,12 @@ class RendererRoad {
                             lineMask
                         );
 
-                        finalColor = mix(
-                            finalColor,
-                            fogColor,
-                            fogFactor
-                        );
-
                         gl_FragColor = vec4(
                             finalColor,
                             1.0
                         );
 
+                        #include <fog_fragment>
                         return;
                     }
 
@@ -297,17 +283,12 @@ class RendererRoad {
                             lineMask
                         );
 
-                        finalColor = mix(
-                            finalColor,
-                            fogColor,
-                            fogFactor
-                        );
-
                         gl_FragColor = vec4(
                             finalColor,
                             1.0
                         );
 
+                        #include <fog_fragment>
                         return;
                     }
 
@@ -321,7 +302,7 @@ class RendererRoad {
                 }
             `,
 
-            side: THREE.DoubleSide
+            side: THREE.FrontSide,
         });
 
         this.mesh = new THREE.Mesh(
@@ -550,11 +531,16 @@ export class RoadRenderer {
     public group: THREE.Group = new THREE.Group();
     private nodeMap: Map<number, Node> = new Map();
     private roadMap: Map<number, RendererRoad> = new Map();
+    private colors: Colors;
     public center: Vector3 = {
         X: 0,
         Y: 0,
         Z: 0
     };
+
+    constructor(colors: Colors) {
+        this.colors = colors;
+    }
 
     public updateNodes(nodes: Node[]) {
         for (const node of nodes) {
@@ -579,7 +565,8 @@ export class RoadRenderer {
                 const rendererRoad = new RendererRoad(
                     road,
                     startNode,
-                    endNode
+                    endNode,
+                    this.colors
                 );
 
                 rendererRoad.updateMeshPosition(this.center);

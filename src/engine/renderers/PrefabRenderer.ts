@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import type {
     Vector3,
-    Quaternion,
     Prefab,
     PrefabSegment
 } from "../../core/types";
+import type { Colors } from '../../core/colors';
 import { interpolatePolylineRaw } from "../../core/hermite";
 
 const ROAD_WIDTH = 4.5;
@@ -15,14 +15,16 @@ class RendererPrefab {
     public prefab: Prefab;
 
     private geometry: THREE.BufferGeometry;
-    private material: THREE.MeshBasicMaterial;
+    private material: THREE.MeshLambertMaterial;
+    private colors: Colors;
 
-    constructor(prefab: Prefab) {
+    constructor(prefab: Prefab, colors: Colors) {
         this.prefab = prefab;
+        this.colors = colors;
         this.geometry = new THREE.BufferGeometry();
-        this.material = new THREE.MeshBasicMaterial({
-            color: 0x171717,
-            side: THREE.DoubleSide,
+        this.material = new THREE.MeshLambertMaterial({
+            color: Number(this.colors.prefabAsphalt),
+            side: THREE.FrontSide,
         });
         this.mesh = new THREE.Mesh(
             this.geometry,
@@ -42,7 +44,6 @@ class RendererPrefab {
         for (const segment of this.prefab.segments) {
             this.addSegment(
                 segment,
-                { X: 0, Y: 0, Z: 0 },
                 positions,
                 uvs,
                 indices,
@@ -110,7 +111,6 @@ class RendererPrefab {
 
     private addSegment(
         segment: PrefabSegment,
-        center: Vector3,
         positions: number[],
         uvs: number[],
         indices: number[],
@@ -157,19 +157,19 @@ class RendererPrefab {
             ));
 
             const currentVec = new THREE.Vector3(
-                current.x - center.X,
-                current.y - center.Y,
-                current.z - center.Z
+                current.x,
+                current.y,
+                current.z
             );
             const previousVec = new THREE.Vector3(
-                previous.x - center.X,
-                previous.y - center.Y,
-                previous.z - center.Z
+                previous.x,
+                previous.y,
+                previous.z
             );
             const nextVec = new THREE.Vector3(
-                next.x - center.X,
-                next.y - center.Y,
-                next.z - center.Z
+                next.x,
+                next.y,
+                next.z
             );
 
             const tangent = new THREE.Vector3().subVectors(
@@ -228,6 +228,11 @@ export class PrefabRenderer {
     public group: THREE.Group = new THREE.Group();
     private prefabMap: Map<number, RendererPrefab> = new Map();
     public center = { X: 0, Y: 0, Z: 0 };
+    private colors: Colors;
+
+    constructor(colors: Colors) {
+        this.colors = colors;
+    }
 
     public updatePrefabs(prefabs: Prefab[]) {
         for (const prefab of prefabs) {
@@ -239,7 +244,7 @@ export class PrefabRenderer {
                 continue;
             }
 
-            const rendererPrefab = new RendererPrefab(prefab);
+            const rendererPrefab = new RendererPrefab(prefab, this.colors);
             rendererPrefab.updateMeshPosition(this.center);
             this.group.add(rendererPrefab.mesh);
             this.prefabMap.set(prefab.id, rendererPrefab);
