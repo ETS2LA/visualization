@@ -83,7 +83,7 @@ export class Visualizer {
 
         this.scene.fog = new THREE.FogExp2(
             Number(this.colors.groundColor),
-            0.004,      // density
+            0.006,      // density
         );
 
         // temporary truck, we need a model for this

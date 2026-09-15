@@ -10,25 +10,50 @@ import { interpolatePolylineRaw } from "../../core/hermite";
 const ROAD_WIDTH = 4.5;
 const HALF_WIDTH = ROAD_WIDTH / 2;
 
+const MODEL_RESOLUTION = 8;
+const LANE_RESOLUTION = 30;
+
+const LANE_WIDTH = 0.15;
+const DASH_LENGTH = 3;
+const GAP_LENGTH = 6;
+const DISTANCE_TOLERANCE = 0.0001;
+
+// Again the lane lines here were made by ChatGPT, however I the root
+// prefab rendering code as well as all other code.
 class RendererPrefab {
     public mesh: THREE.Mesh;
     public prefab: Prefab;
 
     private geometry: THREE.BufferGeometry;
     private material: THREE.MeshLambertMaterial;
+    private lineGeometry: THREE.BufferGeometry;
+    private lineMaterial: THREE.MeshBasicMaterial;
+    public lineMesh: THREE.Mesh;
     private colors: Colors;
 
     constructor(prefab: Prefab, colors: Colors) {
         this.prefab = prefab;
         this.colors = colors;
         this.geometry = new THREE.BufferGeometry();
+        this.lineGeometry = new THREE.BufferGeometry();
         this.material = new THREE.MeshLambertMaterial({
             color: Number(this.colors.prefabAsphalt),
             side: THREE.FrontSide,
         });
+        this.lineMaterial = new THREE.MeshBasicMaterial({
+            color: Number(this.colors.laneMarkings),
+            side: THREE.FrontSide,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: -1,
+        });
         this.mesh = new THREE.Mesh(
             this.geometry,
             this.material
+        );
+        this.lineMesh = new THREE.Mesh(
+            this.lineGeometry,
+            this.lineMaterial
         );
         this.buildMesh();
     }
@@ -37,11 +62,17 @@ class RendererPrefab {
         const positions: number[] = [];
         const uvs: number[] = [];
         const indices: number[] = [];
+        const linePositions: number[] = [];
+        const lineIndices: number[] = [];
+        const sampledSegments = this.prefab.segments.map(segment =>
+            this.sampleSegment(segment, LANE_RESOLUTION)
+        );
 
         // prefab segments are independent curves, so each segment
         // gets its own strip of vertices.
         let vertexOffset = 0;
-        for (const segment of this.prefab.segments) {
+        for (let segmentIndex = 0; segmentIndex < this.prefab.segments.length; segmentIndex++) {
+            const segment = this.prefab.segments[segmentIndex];
             this.addSegment(
                 segment,
                 positions,
@@ -49,9 +80,15 @@ class RendererPrefab {
                 indices,
                 vertexOffset
             );
+            this.addLaneLines(
+                sampledSegments[segmentIndex],
+                sampledSegments,
+                linePositions,
+                lineIndices
+            );
 
             // every segment has two vertices per subdivision.
-            const segments = this.getSegmentCount(segment);
+            const segments = MODEL_RESOLUTION;
             vertexOffset += (segments + 1) * 2;
         }
 
@@ -76,10 +113,15 @@ class RendererPrefab {
         this.geometry.setIndex(indices);
         this.geometry.computeVertexNormals();
         this.mesh.geometry = this.geometry;
-    }
 
-    private getSegmentCount(segment: PrefabSegment): number {
-        return 15;
+        this.lineGeometry.dispose();
+        this.lineGeometry = new THREE.BufferGeometry();
+        this.lineGeometry.setAttribute(
+            "position",
+            new THREE.Float32BufferAttribute(linePositions, 3)
+        );
+        this.lineGeometry.setIndex(lineIndices);
+        this.lineMesh.geometry = this.lineGeometry;
     }
 
     private transformPrefabPoint(point: Vector3): THREE.Vector3 {
@@ -109,6 +151,227 @@ class RendererPrefab {
         return position;
     }
 
+    private sampleSegment(segment: PrefabSegment, segmentCount: number): THREE.Vector3[] {
+        const samples: THREE.Vector3[] = [];
+
+        for (let i = 0; i <= segmentCount; i++) {
+            samples.push(this.transformPrefabPoint(interpolatePolylineRaw(
+                segment.startPosition,
+                segment.endPosition,
+                segment.startRotation,
+                segment.endRotation,
+                i / segmentCount,
+                segment.length
+            )));
+        }
+
+        return samples;
+    }
+
+    private getPointDistanceToSegment(
+        point: THREE.Vector3,
+        start: THREE.Vector3,
+        end: THREE.Vector3
+    ): number {
+        const segment = new THREE.Vector3().subVectors(end, start);
+        const lengthSquared = segment.lengthSq();
+        if (lengthSquared === 0)
+            return point.distanceTo(start);
+
+        const projection = THREE.MathUtils.clamp(
+            new THREE.Vector3().subVectors(point, start).dot(segment) / lengthSquared,
+            0,
+            1
+        );
+        return point.distanceTo(start.clone().addScaledVector(segment, projection));
+    }
+
+    private getPointDistanceToPolyline(
+        point: THREE.Vector3,
+        samples: THREE.Vector3[]
+    ): number {
+        let closestDistance = Infinity;
+        for (let i = 0; i < samples.length - 1; i++) {
+            closestDistance = Math.min(
+                closestDistance,
+                this.getPointDistanceToSegment(point, samples[i], samples[i + 1])
+            );
+        }
+        return closestDistance;
+    }
+
+    private getBoundaryType(
+        point: THREE.Vector3,
+        sampledSegments: THREE.Vector3[][]
+    ): 0 | 1 | 2 {
+        let exactCount = 0;
+        let hasCloserSegment = false;
+
+        for (const samples of sampledSegments) {
+            const distance = this.getPointDistanceToPolyline(point, samples);
+            if (distance < HALF_WIDTH - DISTANCE_TOLERANCE)
+                hasCloserSegment = true;
+            else if (Math.abs(distance - HALF_WIDTH) <= DISTANCE_TOLERANCE)
+                exactCount++;
+        }
+
+        if (hasCloserSegment || exactCount > 2)
+            return 0;
+        return exactCount as 0 | 1 | 2;
+    }
+
+    private addLineQuad(
+        start: THREE.Vector3,
+        end: THREE.Vector3,
+        positions: number[],
+        indices: number[]
+    ) {
+        const direction = new THREE.Vector3().subVectors(end, start).normalize();
+        const up = new THREE.Vector3(0, 1, 0);
+        const right = new THREE.Vector3().crossVectors(direction, up).normalize();
+        const halfWidth = LANE_WIDTH / 2;
+        const vertexOffset = positions.length / 3;
+
+        for (const point of [start, end]) {
+            const left = point.clone().addScaledVector(right, -halfWidth);
+            const lineRight = point.clone().addScaledVector(right, halfWidth);
+            positions.push(left.x, left.y, left.z, lineRight.x, lineRight.y, lineRight.z);
+        }
+
+        indices.push(
+            vertexOffset,
+            vertexOffset + 1,
+            vertexOffset + 2,
+            vertexOffset + 1,
+            vertexOffset + 3,
+            vertexOffset + 2
+        );
+    }
+
+    private addLineStrip(
+        points: THREE.Vector3[],
+        positions: number[],
+        indices: number[]
+    ) {
+        if (points.length < 2)
+            return;
+
+        const up = new THREE.Vector3(0, 1, 0);
+        const halfWidth = LANE_WIDTH / 2;
+        const vertexOffset = positions.length / 3;
+
+        for (let i = 0; i < points.length; i++) {
+            const previous = points[Math.max(0, i - 1)];
+            const next = points[Math.min(points.length - 1, i + 1)];
+            const tangent = new THREE.Vector3().subVectors(next, previous).normalize();
+            const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+            const left = points[i].clone().addScaledVector(right, -halfWidth);
+            const lineRight = points[i].clone().addScaledVector(right, halfWidth);
+
+            positions.push(left.x, left.y, left.z, lineRight.x, lineRight.y, lineRight.z);
+
+            if (i < points.length - 1) {
+                const current = vertexOffset + i * 2;
+                const nextVertex = current + 2;
+                indices.push(
+                    current,
+                    current + 1,
+                    nextVertex,
+                    current + 1,
+                    nextVertex + 1,
+                    nextVertex
+                );
+            }
+        }
+    }
+
+    private addLaneLines(
+        samples: THREE.Vector3[],
+        sampledSegments: THREE.Vector3[][],
+        positions: number[],
+        indices: number[]
+    ) {
+        const up = new THREE.Vector3(0, 1, 0);
+        const boundaryPoints: [THREE.Vector3[], THREE.Vector3[]] = [[], []];
+        const boundaryTypes: [Array<0 | 1 | 2>, Array<0 | 1 | 2>] = [[], []];
+
+        for (let i = 0; i < samples.length - 1; i++) {
+            const start = samples[i];
+            const end = samples[i + 1];
+            const intervalLength = start.distanceTo(end);
+            if (intervalLength === 0)
+                continue;
+
+            const tangent = new THREE.Vector3().subVectors(end, start).normalize();
+            const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+            const midpoint = start.clone().lerp(end, 0.5);
+
+            for (const sideIndex of [0, 1]) {
+                const side = sideIndex === 0 ? -1 : 1;
+                const boundaryStart = start.clone().addScaledVector(right, side * HALF_WIDTH);
+                const boundaryEnd = end.clone().addScaledVector(right, side * HALF_WIDTH);
+                const boundaryMidpoint = midpoint.clone().addScaledVector(right, side * HALF_WIDTH);
+                const boundaryType = this.getBoundaryType(boundaryMidpoint, sampledSegments);
+                boundaryTypes[sideIndex].push(boundaryType);
+                if (i === 0)
+                    boundaryPoints[sideIndex].push(boundaryStart);
+                boundaryPoints[sideIndex].push(boundaryEnd);
+            }
+        }
+
+        for (let sideIndex = 0; sideIndex < 2; sideIndex++) {
+            let solidRun: THREE.Vector3[] = [];
+            let distanceAlongSegment = 0;
+            for (let i = 0; i < boundaryTypes[sideIndex].length; i++) {
+                const boundaryType = boundaryTypes[sideIndex][i];
+                const intervalDistance = boundaryPoints[sideIndex][i].distanceTo(
+                    boundaryPoints[sideIndex][i + 1]
+                );
+                if (boundaryType === 1) {
+                    if (solidRun.length === 0)
+                        solidRun.push(boundaryPoints[sideIndex][i]);
+                    solidRun.push(boundaryPoints[sideIndex][i + 1]);
+                    distanceAlongSegment += intervalDistance;
+                    continue;
+                }
+
+                this.addLineStrip(solidRun, positions, indices);
+                solidRun = [];
+
+                if (boundaryType === 2) {
+                    const boundaryStart = boundaryPoints[sideIndex][i];
+                    const boundaryEnd = boundaryPoints[sideIndex][i + 1];
+                    const intervalLength = boundaryStart.distanceTo(boundaryEnd);
+                    let offset = 0;
+
+                    while (offset < intervalLength) {
+                        const dashPosition = (distanceAlongSegment + offset) % (DASH_LENGTH + GAP_LENGTH);
+                        const remaining = Math.min(
+                            intervalLength - offset,
+                            dashPosition < DASH_LENGTH ? DASH_LENGTH - dashPosition : GAP_LENGTH + DASH_LENGTH - dashPosition
+                        );
+
+                        if (dashPosition < DASH_LENGTH) {
+                            const startT = offset / intervalLength;
+                            const endT = (offset + remaining) / intervalLength;
+                            this.addLineQuad(
+                                boundaryStart.clone().lerp(boundaryEnd, startT),
+                                boundaryStart.clone().lerp(boundaryEnd, endT),
+                                positions,
+                                indices
+                            );
+                        }
+                        offset += remaining;
+                    }
+                }
+
+                distanceAlongSegment += intervalDistance;
+            }
+
+            this.addLineStrip(solidRun, positions, indices);
+        }
+    }
+
     private addSegment(
         segment: PrefabSegment,
         positions: number[],
@@ -116,7 +379,7 @@ class RendererPrefab {
         indices: number[],
         vertexOffset: number
     ) {
-        const segments = this.getSegmentCount(segment);
+        const segments = MODEL_RESOLUTION;
         const up = new THREE.Vector3(0, 1, 0);
 
         for (let i = 0; i <= segments; i++) {
@@ -216,11 +479,14 @@ class RendererPrefab {
             -center.Y,
             -center.Z
         );
+        this.lineMesh.position.copy(this.mesh.position);
     }
 
     public dispose() {
         this.geometry.dispose();
         this.material.dispose();
+        this.lineGeometry.dispose();
+        this.lineMaterial.dispose();
     }
 }
 
@@ -247,6 +513,7 @@ export class PrefabRenderer {
             const rendererPrefab = new RendererPrefab(prefab, this.colors);
             rendererPrefab.updateMeshPosition(this.center);
             this.group.add(rendererPrefab.mesh);
+            this.group.add(rendererPrefab.lineMesh);
             this.prefabMap.set(prefab.id, rendererPrefab);
         }
 
@@ -256,6 +523,7 @@ export class PrefabRenderer {
                 continue;
 
             this.group.remove(rendererPrefab.mesh);
+            this.group.remove(rendererPrefab.lineMesh);
             rendererPrefab.dispose();
             this.prefabMap.delete(id);
         }
@@ -264,6 +532,7 @@ export class PrefabRenderer {
     public clear() {
         for (const rendererPrefab of this.prefabMap.values()) {
             this.group.remove(rendererPrefab.mesh);
+            this.group.remove(rendererPrefab.lineMesh);
             rendererPrefab.dispose();
         }
 

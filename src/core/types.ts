@@ -31,7 +31,10 @@ export interface PrefabSegment {
   startRotation: Quaternion;
   endRotation: Quaternion;
 
+  id: number;
   length: number;
+  nextSegments: number[];
+  previousSegments: number[];
 }
 
 export interface Prefab {

@@ -3,10 +3,12 @@ import type { Colors } from '../../core/colors';
 import type { Vector3, Quaternion, Node, Model, ModelPart, ModelPiece } from '../../core/types';
 import { convertQuaternion } from '../../core/utils';
 
-const RENDER_PIECES = true;
+const RENDER_MODELS = false;
+const RENDER_PIECES = false;
 const PIECE_SIZE_TOLERANCE = 20;
 
 class RendererModel {
+    // @ts-expect-error
     public mesh: THREE.Mesh;
     public group: THREE.Group = new THREE.Group();
     public pieces: THREE.Mesh[] = [];
@@ -16,7 +18,10 @@ class RendererModel {
 
     public model: Model;
     public node: Node;
+
+    // @ts-expect-error
     private geometry: THREE.BoxGeometry;
+    // @ts-expect-error
     private material: THREE.MeshStandardMaterial;
     private colors: Colors;
 
@@ -188,6 +193,8 @@ export class ModelRenderer {
     }
 
     public updateModels(models: Model[]) {
+        if (!RENDER_MODELS) return;
+        
         for (const model of models) {
             if (!this.modelMap.has(model.node)) {
                 var node = this.nodeMap.get(model.node);

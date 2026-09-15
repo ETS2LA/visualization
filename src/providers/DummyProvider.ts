@@ -18,7 +18,9 @@ export class DummyProvider implements DataProvider {
                 },
                 vehicles: [],
                 nodes: {},
-                roads: []
+                roads: [],
+                prefabs: [],
+                models: []
             };
             callback(dummyFrame);
         }, 1000);
