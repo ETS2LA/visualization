@@ -15,6 +15,7 @@ import { createSkyMaterial } from './shaders/GradientSky';
 
 interface VisualizerProps {
     container: HTMLElement;
+    dark?: boolean;
 }
 
 export class Visualizer {
@@ -42,7 +43,7 @@ export class Visualizer {
     private truckMesh: THREE.Mesh | null = null;
 
     constructor(props: VisualizerProps) {
-        this.colors = getColors(true);
+        this.colors = getColors(props.dark ?? true);
 
         this.container = props.container;
         this.container.innerHTML = '';

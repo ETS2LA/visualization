@@ -16,7 +16,7 @@ const LANE_RESOLUTION = 30;
 const LANE_WIDTH = 0.15;
 const DASH_LENGTH = 3;
 const GAP_LENGTH = 6;
-const DISTANCE_TOLERANCE = 0.0001;
+const DISTANCE_TOLERANCE = 0.0005;
 
 // Again the lane lines here were made by ChatGPT, however I the root
 // prefab rendering code as well as all other code.
