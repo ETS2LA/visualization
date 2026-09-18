@@ -90,9 +90,25 @@ export interface DataFrame {
   timestamp: number;
 
   telemetryData: {
-    position: Coordinate; 
+    position: Coordinate;
     rotation: Quaternion;
+    speed: number;
+    speedLimit: number;
+    throttle: number;
+    brake: number;
+    clutch: number;
+    steering: number;
   };
+
+  selfDrivingData: {
+    pathPoints: Coordinate[];
+    targetVehicles: number[];
+    targetSemaphores: number[];
+
+    targetSpeed: number;
+    isControllingSteering: boolean;
+    isControllingAcceleration: boolean;
+  }
 
   nodes: Record<Uid, Node>;
   roads: RoadSegment[];
@@ -116,13 +132,10 @@ export class DataFrameInterpolator
       return null;
     }
 
-    const lastTimestamp = this.lastFrame.timestamp;
-    const currentTimestamp = this.currentFrame.timestamp;
-    const timeDelta = currentTimestamp - lastTimestamp;
-    
     // We don't know when the next frame will arrive, but we can estimate that the next frame will be here
-    // in at least 200ms. Technically the higher this value is the "smoother" the output will be at the cost of latency.
-    // 200 seems fine for most cases.
+    // in at least 200ms (twice the datarate). Technically the higher this value is the "smoother" the output 
+    // will be at the cost of latency, 200 seems fine for most cases.
+    const currentTimestamp = this.currentFrame.timestamp;
     const nextFrameEstimatedTimestamp = currentTimestamp + 200;
     const t = (timestamp - currentTimestamp) / (nextFrameEstimatedTimestamp - currentTimestamp);
 
@@ -166,11 +179,49 @@ export class DataFrameInterpolator
       size: end.size, // We're assuming the size doesn't change between frames.
     });
 
+    const interpolatePathPoints = (
+      start: Coordinate[],
+      end: Coordinate[]
+    ): Coordinate[] => {
+      const sharedPointCount = Math.min(start.length, end.length);
+      const points = end.map((point, index) => {
+        const startPoint = start[index];
+        return startPoint
+          ? interpolateVector3(startPoint, point)
+          : point;
+      });
+
+      // We have to add points ot the end of the path
+      // if the new path has more than the last one. This makes
+      // sure that those get past the slice.
+      if (end.length > sharedPointCount)
+        return points;
+
+      return points.slice(0, sharedPointCount);
+    };
+
     const interpolatedFrame: DataFrame = {
       timestamp,
       telemetryData: {
         position: interpolateVector3(this.lastFrame.telemetryData.position, this.currentFrame.telemetryData.position),
         rotation: interpolateQuaternion(this.lastFrame.telemetryData.rotation, this.currentFrame.telemetryData.rotation),
+        speed: interpolate(this.lastFrame.telemetryData.speed, this.currentFrame.telemetryData.speed),
+        speedLimit: interpolate(this.lastFrame.telemetryData.speedLimit, this.currentFrame.telemetryData.speedLimit),
+        throttle: interpolate(this.lastFrame.telemetryData.throttle, this.currentFrame.telemetryData.throttle),
+        brake: interpolate(this.lastFrame.telemetryData.brake, this.currentFrame.telemetryData.brake),
+        clutch: interpolate(this.lastFrame.telemetryData.clutch, this.currentFrame.telemetryData.clutch),
+        steering: interpolate(this.lastFrame.telemetryData.steering, this.currentFrame.telemetryData.steering),
+      },
+      selfDrivingData: {
+        pathPoints: interpolatePathPoints(
+          this.lastFrame.selfDrivingData.pathPoints,
+          this.currentFrame.selfDrivingData.pathPoints
+        ),
+        targetVehicles: this.currentFrame.selfDrivingData.targetVehicles,
+        targetSemaphores: this.currentFrame.selfDrivingData.targetSemaphores,
+        targetSpeed: this.currentFrame.selfDrivingData.targetSpeed,
+        isControllingSteering: this.currentFrame.selfDrivingData.isControllingSteering,
+        isControllingAcceleration: this.currentFrame.selfDrivingData.isControllingAcceleration,
       },
       nodes: this.currentFrame.nodes,
       roads: this.currentFrame.roads,

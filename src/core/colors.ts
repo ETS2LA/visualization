@@ -12,6 +12,7 @@ export interface Colors
     prefabAsphalt: string;
     laneMarkings: string;
     laneMarkingsYellow: string;
+    path: string;
 
     grass: string;
     dirt: string;
@@ -34,6 +35,7 @@ const DarkModeColors: Colors = {
     prefabAsphalt: "0x030303",
     laneMarkings: "0xbababa",
     laneMarkingsYellow: "0xeed700",
+    path: "0x00d9ff",
     
     grass: "0x4caf50",
     dirt: "0x8d6e63",
@@ -56,6 +58,8 @@ const LightModeColors: Colors = {
     prefabAsphalt: "0x21292f",
     laneMarkings: "0xffffff",
     laneMarkingsYellow: "0xffd700",
+    path: "0x00d9ff",
+
     grass: "0x4caf50",
     dirt: "0x8d6e63",
 

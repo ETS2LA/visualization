@@ -11,6 +11,7 @@ import { DebugTextRenderer } from './renderers/DebugRenderer';
 import { RoadRenderer } from './renderers/RoadRenderer';
 import { PrefabRenderer } from './renderers/PrefabRenderer';
 import { ModelRenderer } from './renderers/ModelRenderer';
+import { PathRenderer } from './renderers/PathRenderer';
 import { createSkyMaterial } from './shaders/GradientSky';
 
 interface VisualizerProps {
@@ -37,6 +38,7 @@ export class Visualizer {
     private roadRenderer: RoadRenderer;
     private prefabRenderer: PrefabRenderer;
     private modelRenderer: ModelRenderer;
+    private pathRenderer: PathRenderer;
     
     private frameTimer: number = Date.now();
 
@@ -107,6 +109,8 @@ export class Visualizer {
         this.scene.add(this.prefabRenderer.group);
         this.modelRenderer = new ModelRenderer(this.colors);
         this.scene.add(this.modelRenderer.group);
+        this.pathRenderer = new PathRenderer(this.colors);
+        this.scene.add(this.pathRenderer.group);
 
         const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
         const sky = new THREE.Mesh(skyGeometry, createSkyMaterial(
@@ -195,6 +199,9 @@ export class Visualizer {
         this.modelRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);
         this.modelRenderer.updateModels(frame.models ? frame.models : []);
 
+        this.pathRenderer.center = frame.telemetryData.position;
+        this.pathRenderer.updatePath(frame.selfDrivingData.pathPoints);
+
         this.debugTextRenderer.addString(`---`)
         this.debugTextRenderer.addString(`Nodes: ${Object.keys(frame.nodes).length}`);
         this.debugTextRenderer.addString(`Roads: ${frame.roads.length}`);
@@ -224,6 +231,7 @@ export class Visualizer {
         
         this.resizeObserver.disconnect();
         this.renderer.dispose();
+        this.pathRenderer.dispose();
         this.container.innerHTML = '';
     }
 }
