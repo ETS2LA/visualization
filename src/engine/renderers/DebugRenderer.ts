@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 export class DebugTextRenderer {
     private stringsToRender: string[] = new Array(0);
     private HTMLEContainer: HTMLElement;

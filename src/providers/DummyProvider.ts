@@ -14,7 +14,21 @@ export class DummyProvider implements DataProvider {
                 timestamp: Date.now(),
                 telemetryData: {
                     position: { X: 0, Y: 0, Z: 0 },
-                    rotation: { X: 0, Y: 0, Z: 0, W: 1 }
+                    rotation: { X: 0, Y: 0, Z: 0, W: 1 },
+                    speed: 0,
+                    speedLimit: 0,
+                    throttle: 0,
+                    brake: 0,
+                    clutch: 0,
+                    steering: 0
+                },
+                selfDrivingData: {
+                    pathPoints: [],
+                    targetVehicles: [],
+                    targetSemaphores: [],
+                    targetSpeed: 0,
+                    isControllingSteering: false,
+                    isControllingAcceleration: false
                 },
                 vehicles: [],
                 nodes: {},

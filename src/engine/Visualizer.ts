@@ -6,7 +6,7 @@ import type { DataProvider } from '../providers/DataProvider';
 import { DataFrameInterpolator } from '../core/types';
 import { CameraHandler } from './CameraHandler';
 import { VehicleRenderer } from './renderers/VehicleRenderer';
-import { NodeRenderer } from './renderers/NodeRenderer';
+// import { NodeRenderer } from './renderers/NodeRenderer';
 import { DebugTextRenderer } from './renderers/DebugRenderer';
 import { RoadRenderer } from './renderers/RoadRenderer';
 import { PrefabRenderer } from './renderers/PrefabRenderer';
@@ -151,7 +151,7 @@ export class Visualizer {
         this.updateState();
         this.camera.update();
         this.renderer.render(this.scene, this.camera.c);
-        this.debugTextRenderer.render();
+        //this.debugTextRenderer.render();
         this.animationFrameId = requestAnimationFrame(this.loop);
     };
     

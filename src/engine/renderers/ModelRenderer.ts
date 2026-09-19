@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Colors } from '../../core/colors';
-import type { Vector3, Quaternion, Node, Model, ModelPart, ModelPiece } from '../../core/types';
+import type { Vector3, Node, Model } from '../../core/types';
 import { convertQuaternion } from '../../core/utils';
 
 const RENDER_MODELS = false;

@@ -43,14 +43,6 @@ function App() {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <div ref={containerRef} id="visualizer-container" style={{ width: '100%', height: '100%' }} />
-      
-      {hasLoaded.current ? null :
-        <div style={{ width: '100%', height: '100%', backgroundColor: '#1e1e1e', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <p style={{ textAlign: 'center', height: 'auto' }}>Waiting for data...</p>
-          <p style={{ textAlign: 'center', height: 'auto' }}>Current source type: {sourceType.current}</p>
-        </div>
-      }
-    
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Vector3, Quaternion, Node } from '../../core/types';
+import type { Vector3, Node } from '../../core/types';
 
 class RendererNode {
     public mesh: THREE.Mesh;
