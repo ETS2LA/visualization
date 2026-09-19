@@ -12,11 +12,13 @@ import { RoadRenderer } from './renderers/RoadRenderer';
 import { PrefabRenderer } from './renderers/PrefabRenderer';
 import { ModelRenderer } from './renderers/ModelRenderer';
 import { PathRenderer } from './renderers/PathRenderer';
+import { TruckRenderer, type TruckStyle } from './renderers/TruckRenderer';
 import { createSkyMaterial } from './shaders/GradientSky';
 
 interface VisualizerProps {
     container: HTMLElement;
     dark?: boolean;
+    truckStyle?: TruckStyle;
 }
 
 export class Visualizer {
@@ -39,10 +41,9 @@ export class Visualizer {
     private prefabRenderer: PrefabRenderer;
     private modelRenderer: ModelRenderer;
     private pathRenderer: PathRenderer;
+    private truckRenderer: TruckRenderer;
     
     private frameTimer: number = Date.now();
-
-    private truckMesh: THREE.Mesh | null = null;
 
     constructor(props: VisualizerProps) {
         this.colors = getColors(props.dark ?? true);
@@ -89,13 +90,6 @@ export class Visualizer {
             0.006,      // density
         );
 
-        // temporary truck, we need a model for this
-        const truckGeometry = new THREE.BoxGeometry(2, 1, 4);
-        const truckMaterial = new THREE.MeshStandardMaterial({ color: 0x00FF00 });
-        this.truckMesh = new THREE.Mesh(truckGeometry, truckMaterial);
-        this.truckMesh.position.set(0, -1.5, 0);
-        this.scene.add(this.truckMesh);
-
         this.resizeObserver = new ResizeObserver(() => this.onResize());
         this.resizeObserver.observe(this.container);
 
@@ -111,6 +105,8 @@ export class Visualizer {
         this.scene.add(this.modelRenderer.group);
         this.pathRenderer = new PathRenderer(this.colors);
         this.scene.add(this.pathRenderer.group);
+        this.truckRenderer = new TruckRenderer(props.truckStyle ?? 'eu');
+        this.scene.add(this.truckRenderer.group);
 
         const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
         const sky = new THREE.Mesh(skyGeometry, createSkyMaterial(
@@ -174,14 +170,11 @@ export class Visualizer {
         const frame = this.interpolator.getInterpolatedFrame(Date.now());
         if (!frame) return;
 
-        this.truckMesh?.setRotationFromQuaternion(new THREE.Quaternion(
-            -frame.telemetryData.rotation.X,
-            frame.telemetryData.rotation.Y,
-            frame.telemetryData.rotation.Z,
-            frame.telemetryData.rotation.W
-        ));
-
         this.camera.setQuaternion(frame.telemetryData.rotation);
+        this.camera.setZoomFactor(Math.max(1, frame.telemetryData.speed / (50 / 3.6)));
+
+        this.truckRenderer.center = frame.telemetryData.position;
+        this.truckRenderer.updateTelemetry(frame.telemetryData);
         this.vehicleRenderer.center = frame.telemetryData.position;
         this.vehicleRenderer.updateVehicles(frame.vehicles);
 
@@ -232,6 +225,7 @@ export class Visualizer {
         this.resizeObserver.disconnect();
         this.renderer.dispose();
         this.pathRenderer.dispose();
+        this.truckRenderer.dispose();
         this.container.innerHTML = '';
     }
 }

@@ -25,7 +25,7 @@ class RendererPrefab {
     public prefab: Prefab;
 
     private geometry: THREE.BufferGeometry;
-    private material: THREE.MeshLambertMaterial;
+    private material: THREE.ShaderMaterial;
     private lineGeometry: THREE.BufferGeometry;
     private lineMaterial: THREE.MeshBasicMaterial;
     public lineMesh: THREE.Mesh;
@@ -36,8 +36,34 @@ class RendererPrefab {
         this.colors = colors;
         this.geometry = new THREE.BufferGeometry();
         this.lineGeometry = new THREE.BufferGeometry();
-        this.material = new THREE.MeshLambertMaterial({
-            color: Number(this.colors.prefabAsphalt),
+        this.material = new THREE.ShaderMaterial({
+            transparent: false,
+            fog: true,
+            uniforms: {
+                asphaltColor: { value: new THREE.Color(Number(this.colors.asphalt)) },
+                fogColor: { value: new THREE.Color(Number(this.colors.groundColor)) },
+                fogDensity: { value: 0.006 },
+            },
+            vertexShader: `
+                #include <common>
+                #include <fog_pars_vertex>
+
+                void main() {
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    vFogDepth = -mvPosition.z;
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 asphaltColor;
+
+                #include <fog_pars_fragment>
+
+                void main() {
+                    gl_FragColor = vec4(asphaltColor, 1.0);
+                    #include <fog_fragment>
+                }
+            `,
             side: THREE.FrontSide,
         });
         this.lineMaterial = new THREE.MeshBasicMaterial({
@@ -138,7 +164,7 @@ class RendererPrefab {
         );
 
         const rotation = new THREE.Euler(
-            this.prefab.prefabRotation.X,
+            -this.prefab.prefabRotation.X,
             this.prefab.prefabRotation.Y,
             this.prefab.prefabRotation.Z,
             "XYZ"

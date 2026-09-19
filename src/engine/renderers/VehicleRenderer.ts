@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Vehicle, Vector3, Trailer } from '../../core/types';
 import type { Colors } from '../../core/colors';
+import { convertQuaternion } from '../../core/utils';
 
 class RendererVehicle {
     public mesh: THREE.Mesh;
@@ -35,12 +36,8 @@ class RendererVehicle {
             this.vehicle.position.Y - center.Y,
             this.vehicle.position.Z - center.Z
         );
-        this.mesh.quaternion.set(
-            -this.vehicle.rotation.X,
-            this.vehicle.rotation.Y,
-            this.vehicle.rotation.Z,
-            this.vehicle.rotation.W
-        );
+        let quat = convertQuaternion(this.vehicle.rotation);
+        this.mesh.quaternion.set(-quat.x, quat.y, quat.z, quat.w);
     }
     
     public dispose() {

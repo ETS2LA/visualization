@@ -15,6 +15,7 @@ export class DummyProvider implements DataProvider {
                 telemetryData: {
                     position: { X: 0, Y: 0, Z: 0 },
                     rotation: { X: 0, Y: 0, Z: 0, W: 1 },
+                    trailers: [],
                     speed: 0,
                     speedLimit: 0,
                     throttle: 0,

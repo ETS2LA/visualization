@@ -86,12 +86,22 @@ export interface Vehicle
   trailers: Trailer[];
 }
 
+export interface TelemetryTrailer 
+{
+  position: Coordinate;
+  rotationEuler: Vector3;
+  hookPosition: Coordinate;
+
+  wheels: Vector3[];
+}
+
 export interface DataFrame {
   timestamp: number;
 
   telemetryData: {
     position: Coordinate;
     rotation: Quaternion;
+    trailers: TelemetryTrailer[];
     speed: number;
     speedLimit: number;
     throttle: number;
@@ -200,11 +210,29 @@ export class DataFrameInterpolator
       return points.slice(0, sharedPointCount);
     };
 
+    const interpolateTelemetryTrailer = (start: TelemetryTrailer, end: TelemetryTrailer): TelemetryTrailer => ({
+      position: interpolateVector3(start.position, end.position),
+      rotationEuler: interpolateVector3(start.rotationEuler, end.rotationEuler),
+      hookPosition: interpolateVector3(start.hookPosition, end.hookPosition),
+      wheels: start.wheels.map((wheel, index) => {
+        const endWheel = end.wheels[index];
+        return endWheel ? interpolateVector3(wheel, endWheel) : wheel;
+      }),
+    });
+
     const interpolatedFrame: DataFrame = {
       timestamp,
       telemetryData: {
         position: interpolateVector3(this.lastFrame.telemetryData.position, this.currentFrame.telemetryData.position),
         rotation: interpolateQuaternion(this.lastFrame.telemetryData.rotation, this.currentFrame.telemetryData.rotation),
+        trailers: this.currentFrame.telemetryData.trailers.map((trailer, index) => {
+          const lastTrailer = this.lastFrame!.telemetryData.trailers[index];
+          if (lastTrailer) {
+            return interpolateTelemetryTrailer(lastTrailer, trailer);
+          } else {
+            return trailer;
+          }
+        }),
         speed: interpolate(this.lastFrame.telemetryData.speed, this.currentFrame.telemetryData.speed),
         speedLimit: interpolate(this.lastFrame.telemetryData.speedLimit, this.currentFrame.telemetryData.speedLimit),
         throttle: interpolate(this.lastFrame.telemetryData.throttle, this.currentFrame.telemetryData.throttle),

@@ -42,7 +42,7 @@ const DarkModeColors: Colors = {
 
     sunPosition: { x: 20, y: 0, z: 5 },
     sunColor: "0xffffff",
-    sunIntensity: 5,
+    sunIntensity: 1,
 }
 
 const LightModeColors: Colors = {

@@ -7,6 +7,7 @@ export class CameraHandler {
     public c: THREE.PerspectiveCamera;
 
     public offset: Vector3;
+    public zoomFactor: number = 1.0;
     public truckRotation: Quaternion;
     public truckPosition: Vector3;
     public fov: number = 75;
@@ -40,6 +41,10 @@ export class CameraHandler {
         this.truckPosition.Z = truckPosition.Z;
     }
 
+    public setZoomFactor(zoomFactor: number) {
+        this.zoomFactor = zoomFactor;
+    }
+
     public update() {
         const quat = convertQuaternion(this.truckRotation);
 
@@ -52,9 +57,9 @@ export class CameraHandler {
         // This is the rotation of the camera relative to the truck
         // (keeps it orbiting around the truck as it moves)
         const localOffset = new THREE.Vector3(
-            this.offset.X,
-            this.offset.Y,
-            this.offset.Z
+            this.offset.X * this.zoomFactor,
+            this.offset.Y * this.zoomFactor,
+            this.offset.Z * this.zoomFactor
         ).applyQuaternion(quat);
 
         this.c.position.copy(truckPos).add(localOffset);

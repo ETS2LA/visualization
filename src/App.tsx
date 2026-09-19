@@ -7,6 +7,7 @@ import './App.css'
 function App() {
   const hasLoaded = useRef(false);
   const sourceType = useRef<'dummy' | 'localws'>('localws');
+  const truckStyle = useRef<'eu' | 'us'>('eu');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -14,9 +15,14 @@ function App() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const sourceParam = urlParams.get('source');
+    const truckParam = urlParams.get('truck');
+    if (truckParam === 'eu' || truckParam === 'us') {
+      truckStyle.current = truckParam;
+    }
     const visualizer = new Visualizer({
       container: containerRef.current,
       dark: urlParams.get('light') !== 'true',
+      truckStyle: truckStyle.current,
     });
 
     if (sourceParam === 'dummy' || sourceParam === 'localws') {

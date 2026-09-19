@@ -55,7 +55,7 @@ export class PathRenderer {
                 }
             `,
             transparent: true,
-            depthTest: false,
+            depthTest: true,
             depthWrite: false,
             fog: true,
             side: THREE.DoubleSide,
@@ -64,14 +64,14 @@ export class PathRenderer {
             color: pathColor,
             transparent: true,
             opacity: PATH_EDGE_OPACITY,
-            depthTest: false,
+            depthTest: true,
             depthWrite: false,
             fog: true,
         });
         this.ribbon = new THREE.Mesh(this.geometry, this.material);
         this.edges = new THREE.LineSegments(this.edgeGeometry, this.edgeMaterial);
-        this.ribbon.renderOrder = 1000;
-        this.edges.renderOrder = 1001;
+        this.ribbon.renderOrder = 1;
+        this.edges.renderOrder = 2;
         this.group.add(this.ribbon, this.edges);
     }
 
