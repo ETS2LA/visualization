@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // NOTE: This shader was created by ChatGPT. I claim no ownership of it.
 //       The rest of the code was written by me (Tumppi066).
-export function createSkyMaterial(topColor: THREE.Color, horizonColor: THREE.Color, bottomColor: THREE.Color, horizonHeight: number = 0, horizonFalloff: number = 0.05): THREE.ShaderMaterial {
+export function createSkyMaterial(topColor: THREE.Color, horizonColor: THREE.Color, bottomColor: THREE.Color, horizonHeight: number = 0, horizonFalloff: number = 0.03): THREE.ShaderMaterial {
     return new THREE.ShaderMaterial({
         side: THREE.BackSide,
 

@@ -42,7 +42,7 @@ class RendererPrefab {
             uniforms: {
                 asphaltColor: { value: new THREE.Color(Number(this.colors.asphalt)) },
                 fogColor: { value: new THREE.Color(Number(this.colors.groundColor)) },
-                fogDensity: { value: 0.006 },
+                fogDensity: { value: this.colors.fogIntensity },
             },
             vertexShader: `
                 #include <common>

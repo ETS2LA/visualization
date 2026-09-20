@@ -80,6 +80,7 @@ export interface Trailer
 export interface Vehicle 
 {
   id: Uid;
+  speed: number;
   position: Coordinate;
   rotation: Quaternion;
   size: Vector3;
@@ -176,6 +177,7 @@ export class DataFrameInterpolator
 
     const interpolateVehicle = (start: Vehicle, end: Vehicle): Vehicle => ({
       id: start.id,
+      speed: interpolate(start.speed, end.speed),
       position: interpolateVector3(start.position, end.position),
       rotation: interpolateQuaternion(start.rotation, end.rotation),
       trailers: end.trailers.map(endTrailer => {

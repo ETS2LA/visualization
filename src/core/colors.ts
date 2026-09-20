@@ -7,9 +7,9 @@ export interface Colors
 
     buildings: string;
     vehicles: string;
+    vehiclesHighlight: string;
     
     asphalt: string;
-    prefabAsphalt: string;
     laneMarkings: string;
     laneMarkingsYellow: string;
     path: string;
@@ -20,22 +20,23 @@ export interface Colors
     sunPosition: { x: number; y: number; z: number };
     sunColor: string;
     sunIntensity: number;
+    fogIntensity: number;
 }
 
 const DarkModeColors: Colors = {
     text: "0xeeeeee",
     
-    groundColor: "0x161616",
-    skyColor: "0x191919",
+    groundColor: "0x272727",
+    skyColor: "0x232323",
 
     buildings: "0x111111",
-    vehicles: "0x202020",
+    vehicles: "0x303030",
+    vehiclesHighlight: "0x00d9ff",
 
-    asphalt: "0x181818",
-    prefabAsphalt: "0x030303",
+    asphalt: "0x232323",
     laneMarkings: "0xbababa",
     laneMarkingsYellow: "0xeed700",
-    path: "0x00d9ff",
+    path: "0x22d9ff",
     
     grass: "0x4caf50",
     dirt: "0x8d6e63",
@@ -43,6 +44,7 @@ const DarkModeColors: Colors = {
     sunPosition: { x: 20, y: 0, z: 5 },
     sunColor: "0xffffff",
     sunIntensity: 1,
+    fogIntensity: 0.0045,
 }
 
 const LightModeColors: Colors = {
@@ -53,9 +55,9 @@ const LightModeColors: Colors = {
 
     buildings: "0x444444",
     vehicles: "0x555555",
+    vehiclesHighlight: "0x00d9ff",
 
     asphalt: "0x86939c",
-    prefabAsphalt: "0x21292f",
     laneMarkings: "0xffffff",
     laneMarkingsYellow: "0xffd700",
     path: "0x00d9ff",
@@ -66,6 +68,7 @@ const LightModeColors: Colors = {
     sunPosition: { x: 20, y: 10, z: 5 },
     sunColor: "0xffffff",
     sunIntensity: 6,
+    fogIntensity: 0.005,
 }
 
 export function getColors(darkMode: boolean): Colors {

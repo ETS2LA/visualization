@@ -7,16 +7,16 @@ const RENDER_MODELS = false;
 const RENDER_PIECES = false;
 const PIECE_SIZE_TOLERANCE = 20;
 
-function getTreeUrls() {
-    const base = new URL('../../assets/models/trees/', import.meta.url).href;
-    const treeCount = 21;
-    let treeUrls: URL[] = [];
-    for (let i = 1; i <= treeCount; i++) {
-        const treeUrl = new URL(`Tree_temp_climate_${i.toString().padStart(3, '0')}.glb`, base);
-        treeUrls.push(treeUrl);
-    }
-    return treeUrls;
-}
+// function getTreeUrls() {
+//     const base = new URL('../../assets/models/trees/', import.meta.url).href;
+//     const treeCount = 21;
+//     let treeUrls: URL[] = [];
+//     for (let i = 1; i <= treeCount; i++) {
+//         const treeUrl = new URL(`Tree_temp_climate_${i.toString().padStart(3, '0')}.glb`, base);
+//         treeUrls.push(treeUrl);
+//     }
+//     return treeUrls;
+// }
 
 class RendererModel {
     // @ts-expect-error

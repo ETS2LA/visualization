@@ -78,7 +78,7 @@ export class Visualizer {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement);
         
-        const ambientLight = new THREE.AmbientLight(this.colors.sunColor, this.colors.sunIntensity * 0.5);
+        const ambientLight = new THREE.AmbientLight(this.colors.sunColor, this.colors.sunIntensity * 0.4);
         const directionalLight = new THREE.DirectionalLight(this.colors.sunColor, this.colors.sunIntensity);
         directionalLight.position.copy(this.colors.sunPosition);
         directionalLight.castShadow = true;
@@ -87,7 +87,7 @@ export class Visualizer {
 
         this.scene.fog = new THREE.FogExp2(
             Number(this.colors.groundColor),
-            0.006,      // density
+            this.colors.fogIntensity,      // density
         );
 
         this.resizeObserver = new ResizeObserver(() => this.onResize());
@@ -176,7 +176,7 @@ export class Visualizer {
         this.truckRenderer.center = frame.telemetryData.position;
         this.truckRenderer.updateTelemetry(frame.telemetryData);
         this.vehicleRenderer.center = frame.telemetryData.position;
-        this.vehicleRenderer.updateVehicles(frame.vehicles);
+        this.vehicleRenderer.updateVehicles(frame.vehicles, frame.selfDrivingData.targetVehicles);
 
         // this.nodeRenderer.center = frame.telemetryData.position;
         // this.nodeRenderer.updateNodes(frame.nodes ? Object.values(frame.nodes) : []);

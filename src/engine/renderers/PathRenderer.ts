@@ -4,8 +4,8 @@ import type { Colors } from "../../core/colors";
 
 const PATH_HEIGHT_OFFSET = 0.05;
 const PATH_WIDTH = 1.8;
-const PATH_OPACITY = 0.32;
-const PATH_EDGE_OPACITY = 0.8;
+const PATH_OPACITY = 0.25;
+const PATH_EDGE_OPACITY = 0.7;
 
 // NOTE: This shader was created by ChatGPT. I claim no ownership of the
 //       shader code.

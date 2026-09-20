@@ -24,23 +24,23 @@ type TelemetryPayload = {
 function getModelUrls(style: TruckStyle) {
     if (style === 'us') {
         return {
-            truckGlb: new URL('../../assets/models/us_truck.glb', import.meta.url).href,
-            middleGlb: new URL('../../assets/models/us_trailer_middle.glb', import.meta.url).href,
-            rearGlb: new URL('../../assets/models/us_trailer_rear.glb', import.meta.url).href,
+            truckGlb: new URL('/models/us_truck.glb', import.meta.url).href,
+            middleGlb: new URL('/models/us_trailer_middle.glb', import.meta.url).href,
+            rearGlb: new URL('/models/us_trailer_rear.glb', import.meta.url).href,
         };
     }
 
     return {
-        truckGlb: new URL('../../assets/models/eu_truck.glb', import.meta.url).href,
-        middleGlb: new URL('../../assets/models/eu_trailer_middle.glb', import.meta.url).href,
-        rearGlb: new URL('../../assets/models/eu_trailer_rear.glb', import.meta.url).href,
+        truckGlb: new URL('/models/eu_truck.glb', import.meta.url).href,
+        middleGlb: new URL('/models/eu_trailer_middle.glb', import.meta.url).href,
+        rearGlb: new URL('/models/eu_trailer_rear.glb', import.meta.url).href,
     };
 }
 
 
 function convertEuler(rotationEuler: Vector3): THREE.Quaternion {
     const rotation = new THREE.Euler(
-        -rotationEuler.Y * Math.PI * 2,
+        rotationEuler.Y * Math.PI * 2,
         rotationEuler.X * Math.PI * 2 + Math.PI,
         rotationEuler.Z * Math.PI * 2,
         'XYZ'
@@ -157,7 +157,7 @@ export class TruckRenderer {
         this.truckInstance.scale.copy(computeScale(new THREE.Vector3(2.5, 3.5, 6.0), this.truckTemplate.size));
         this.truckInstance.position.set(
             this.latestTelemetry.position.X - this.center.X,
-            this.latestTelemetry.position.Y - this.center.Y - this.truckTemplate.size.y * 1.5,
+            this.latestTelemetry.position.Y - this.center.Y, //- this.truckTemplate.size.y * 1.5,
             this.latestTelemetry.position.Z - this.center.Z,
         );
         this.truckInstance.quaternion.copy(convertQuaternion(this.latestTelemetry.rotation));

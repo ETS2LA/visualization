@@ -57,7 +57,7 @@ class RendererRoad {
                 gapLength: { value: GAP_LENGTH },
 
                 fogColor: { value: new THREE.Color(Number(this.colors.groundColor)) },
-                fogDensity: { value: 0.006 }
+                fogDensity: { value: this.colors.fogIntensity }
             }]),
 
             vertexShader: `

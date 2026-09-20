@@ -17,7 +17,7 @@ class RendererVehicle {
         this.geometry = new THREE.BoxGeometry(vehicle.size.X, vehicle.size.Y, vehicle.size.Z);
         this.material = new THREE.MeshStandardMaterial({ color: Number(this.colors.vehicles) });
         this.material.transparent = true;
-        this.material.opacity = 0.6;
+        this.material.opacity = 0.8;
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         this.mesh.castShadow = true;
@@ -25,8 +25,9 @@ class RendererVehicle {
         this.updateMesh(center);
     }
     
-    public updateVehicle(vehicle: Vehicle | Trailer, center: Vector3 = { X: 0, Y: 0, Z: 0 }) {
+    public updateVehicle(vehicle: Vehicle | Trailer, center: Vector3 = { X: 0, Y: 0, Z: 0 }, highlighted: boolean = false) {
         this.vehicle = vehicle;
+        this.material.color.setHex(highlighted ? Number(this.colors.vehiclesHighlight) : Number(this.colors.vehicles));
         this.updateMesh(center);
     }
     
@@ -57,19 +58,20 @@ export class VehicleRenderer {
         this.colors = colors;
     }
 
-    public updateVehicles(vehicles: Vehicle[]) {
+    public updateVehicles(vehicles: Vehicle[], highlights: number[] = []) {
         const newIds = new Set(vehicles.map((v) => v.id));
         
         // Updated or added (this is ugly, please help :sob:)
         for (const vehicle of vehicles) {
             if (this.vehicleMap.has(vehicle.id)) {
+                const isHighlighted = highlights.includes(Number(vehicle.id));
                 const rendererVehicle = this.vehicleMap.get(vehicle.id)!;
-                rendererVehicle.updateVehicle(vehicle, this.center);
+                rendererVehicle.updateVehicle(vehicle, this.center, isHighlighted);
                 for (const trailer of vehicle.trailers) {
                     const trailerRenderers = this.vehicleTrailers.get(vehicle.id) || [];
                     const trailerRenderer = trailerRenderers.find(t => t.vehicle.id === trailer.id);
                     if (trailerRenderer) {
-                        trailerRenderer.updateVehicle(trailer, this.center);
+                        trailerRenderer.updateVehicle(trailer, this.center, isHighlighted);
                     } else {
                         const newTrailerRenderer = new RendererVehicle(trailer, this.center, this.colors);
                         this.group.add(newTrailerRenderer.mesh);
