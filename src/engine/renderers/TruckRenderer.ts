@@ -40,9 +40,9 @@ function getModelUrls(style: TruckStyle) {
 
 function convertEuler(rotationEuler: Vector3): THREE.Quaternion {
     const rotation = new THREE.Euler(
-        rotationEuler.Y * Math.PI * 2,
+        -rotationEuler.Z * Math.PI * 2,
         rotationEuler.X * Math.PI * 2 + Math.PI,
-        rotationEuler.Z * Math.PI * 2,
+        rotationEuler.Y * Math.PI * 2,
         'XYZ'
     );
 

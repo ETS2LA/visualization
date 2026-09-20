@@ -10,7 +10,7 @@ export class CameraHandler {
     public zoomFactor: number = 1.0;
     public truckRotation: Quaternion;
     public truckPosition: Vector3;
-    public fov: number = 75;
+    public fov: number = 70;
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -43,6 +43,8 @@ export class CameraHandler {
 
     public setZoomFactor(zoomFactor: number) {
         this.zoomFactor = zoomFactor;
+        this.c.fov = Math.max(60, this.fov / this.zoomFactor);
+        this.c.updateProjectionMatrix();
     }
 
     public update() {
@@ -58,7 +60,7 @@ export class CameraHandler {
         // (keeps it orbiting around the truck as it moves)
         const localOffset = new THREE.Vector3(
             this.offset.X * this.zoomFactor,
-            this.offset.Y * this.zoomFactor,
+            this.offset.Y + 5 / this.zoomFactor,
             this.offset.Z * this.zoomFactor
         ).applyQuaternion(quat);
 

@@ -146,8 +146,8 @@ export class Visualizer {
         
         this.updateState();
         this.camera.update();
+        // this.debugTextRenderer.render();
         this.renderer.render(this.scene, this.camera.c);
-        //this.debugTextRenderer.render();
         this.animationFrameId = requestAnimationFrame(this.loop);
     };
     
@@ -171,7 +171,7 @@ export class Visualizer {
         if (!frame) return;
 
         this.camera.setQuaternion(frame.telemetryData.rotation);
-        this.camera.setZoomFactor(Math.max(1, frame.telemetryData.speed / (50 / 3.6)));
+        this.camera.setZoomFactor(Math.max(1, Math.min(1.75, frame.telemetryData.speed / (55 / 3.6))));
 
         this.truckRenderer.center = frame.telemetryData.position;
         this.truckRenderer.updateTelemetry(frame.telemetryData);
@@ -195,12 +195,14 @@ export class Visualizer {
         this.pathRenderer.center = frame.telemetryData.position;
         this.pathRenderer.updatePath(frame.selfDrivingData.pathPoints);
 
+        this.debugTextRenderer.addString(`Zoom Factor: ${this.camera.zoomFactor.toFixed(2)}`);
         this.debugTextRenderer.addString(`---`)
         this.debugTextRenderer.addString(`Nodes: ${Object.keys(frame.nodes).length}`);
         this.debugTextRenderer.addString(`Roads: ${frame.roads.length}`);
         this.debugTextRenderer.addString(`Prefabs: ${frame.prefabs.length}`);
         this.debugTextRenderer.addString(`Models: ${frame.models.length}`);
         this.debugTextRenderer.addString(`Vehicles: ${frame.vehicles.length}`);
+        this.debugTextRenderer.addString(`Path Points: ${frame.selfDrivingData.pathPoints.length}`);
     }
     
     private onResize() {
