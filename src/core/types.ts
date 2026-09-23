@@ -132,6 +132,14 @@ export class DataFrameInterpolator
 {
   lastFrame: DataFrame | null = null;
   currentFrame: DataFrame | null = null;
+  
+  // This determines when we drop interpolation and just
+  // immediately snap to the new position. This can happen
+  // when the user teleports for example, so we just prevent
+  // the 10 or so seconds it would take to get there normally.
+  // NOTE: This is not the actual distance as we don't do a sqrt.
+  //       In reality this is ~50-70m.
+  readonly SNAP_DISTANCE = 5000;
 
   setCurrentFrame(frame: DataFrame) {
     this.lastFrame = this.getInterpolatedFrame(frame.timestamp) || this.currentFrame;
@@ -155,11 +163,44 @@ export class DataFrameInterpolator
     }
 
     const interpolate = (start: number, end: number) => start + (end - start) * t;
-    const interpolateVector3 = (start: Vector3, end: Vector3): Vector3 => ({
-      X: interpolate(start.X, end.X),
-      Y: interpolate(start.Y, end.Y),
-      Z: interpolate(start.Z, end.Z),
-    });
+    const interpolateVector3 = (start: Vector3, end: Vector3): Vector3 => {
+      const dist = distance3(start, end);
+      if (dist > this.SNAP_DISTANCE)
+        return end;
+
+      return ({
+        X: interpolate(start.X, end.X),
+        Y: interpolate(start.Y, end.Y),
+        Z: interpolate(start.Z, end.Z),
+      });
+    }
+      
+
+    // Euler values can change signs from negative to positive. i.e. 1.0 -> -1.0.
+    // We need to handle this case as well.
+    const interpolateEulerVector3 = (start: Vector3, end: Vector3): Vector3 => {
+      const interp = (s: number, e: number) => {
+        let d = e - s;
+        while (d > 0.5) d -= 1;
+        while (d < -0.5) d += 1;
+        let v = s + d * t;
+        v = v - Math.floor(v);
+        return v;
+      };
+
+      return { 
+        X: interp(start.X, end.X), 
+        Y: interp(start.Y, end.Y), 
+        Z: interp(start.Z, end.Z) 
+      };
+    };
+
+    const distance3 = (a: Vector3, b: Vector3) => {
+      const dx = a.X - b.X;
+      const dy = a.Y - b.Y;
+      const dz = a.Z - b.Z;
+      return dx + dy + dz;
+    };
 
     const interpolateQuaternion = (start: Quaternion, end: Quaternion): Quaternion => ({
       X: interpolate(start.X, end.X),
@@ -172,7 +213,7 @@ export class DataFrameInterpolator
       id: start.id,
       position: interpolateVector3(start.position, end.position),
       rotation: interpolateQuaternion(start.rotation, end.rotation),
-      size: end.size, // We're assuming the size doesn't change between frames.
+      size: end.size,
     });
 
     const interpolateVehicle = (start: Vehicle, end: Vehicle): Vehicle => ({
@@ -188,7 +229,7 @@ export class DataFrameInterpolator
           return endTrailer;
         }
       }),
-      size: end.size, // We're assuming the size doesn't change between frames.
+      size: end.size,
     });
 
     const interpolatePathPoints = (
@@ -212,15 +253,17 @@ export class DataFrameInterpolator
       return points.slice(0, sharedPointCount);
     };
 
-    const interpolateTelemetryTrailer = (start: TelemetryTrailer, end: TelemetryTrailer): TelemetryTrailer => ({
-      position: interpolateVector3(start.position, end.position),
-      rotationEuler: interpolateVector3(start.rotationEuler, end.rotationEuler),
-      hookPosition: interpolateVector3(start.hookPosition, end.hookPosition),
-      wheels: start.wheels.map((wheel, index) => {
-        const endWheel = end.wheels[index];
-        return endWheel ? interpolateVector3(wheel, endWheel) : wheel;
-      }),
-    });
+    const interpolateTelemetryTrailer = (start: TelemetryTrailer, end: TelemetryTrailer): TelemetryTrailer => {
+      return {
+        position: interpolateVector3(start.position, end.position),
+        rotationEuler: interpolateEulerVector3(start.rotationEuler, end.rotationEuler),
+        hookPosition: interpolateVector3(start.hookPosition, end.hookPosition),
+        wheels: start.wheels.map((wheel, index) => {
+          const endWheel = end.wheels[index];
+          return endWheel ? interpolateVector3(wheel, endWheel) : wheel;
+        }),
+      };
+    };
 
     const interpolatedFrame: DataFrame = {
       timestamp,

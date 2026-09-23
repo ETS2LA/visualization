@@ -108,7 +108,10 @@ export class TruckRenderer {
         const urls = getModelUrls(style);
 
         this.truckTemplate = await this.loadModel(urls.truckGlb);
-        this.trailerTemplates.middle = await this.loadModel(urls.middleGlb);
+        // TODO: Try and figure out what decides which model the trailers are.
+        //       It seems like in most cases they use double rear trailers instead
+        //       of a middle trailer with a truck connection.
+        this.trailerTemplates.middle = await this.loadModel(urls.rearGlb);
         this.trailerTemplates.rear = await this.loadModel(urls.rearGlb);
 
         this.updateObjectPositions();
