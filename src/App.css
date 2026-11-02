@@ -1,0 +1,110 @@
+input[type='range'].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 18px;
+  width: 100%;
+}
+
+input[type='range'].slider:focus {
+  outline: none;
+}
+
+input[type='range'].slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 2px;
+  background-color: var(--control-bg);
+  border: 1px solid var(--border);
+  transition: all 0.15s ease-in-out;
+}
+
+input[type='range'].slider:hover::-webkit-slider-runnable-track {
+  background-color: rgba(71, 71, 71, 0.5);
+  border-color: var(--accent-border);
+}
+
+input[type='range'].slider::-moz-range-track {
+  height: 6px;
+  border-radius: 2px;
+  background-color: var(--control-bg);
+  border: 1px solid var(--border);
+  transition: all 0.15s ease-in-out;
+}
+
+input[type='range'].slider:hover::-moz-range-track {
+  background-color: rgba(71, 71, 71, 0.5);
+  border-color: var(--accent-border);
+}
+
+input[type='range'].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 2px;
+  background-color: var(--accent);
+  border: 1px solid var(--text-accent);
+  margin-top: -5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease-in-out;
+}
+
+input[type='range'].slider:hover::-webkit-slider-thumb {
+  background-color: var(--text-accent);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(236, 175, 147, 0.35);
+  transform: scale(1.1);
+}
+
+input[type='range'].slider::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 2px;
+  background-color: var(--accent);
+  border: 1px solid var(--text-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease-in-out;
+}
+
+input[type='range'].slider:hover::-moz-range-thumb {
+  background-color: var(--text-accent);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(236, 175, 147, 0.35);
+  transform: scale(1.1);
+}
+
+.input-text {
+  background-color: var(--bg-darker);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.input-text:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(154, 106, 84, 0.25);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  background-color: var(--bg-darker);
+  color: var(--text-l);
+  border: 1px solid var(--border);
+}
+
+.badge-accent {
+  background-color: var(--accent-darker);
+  color: var(--text-accent);
+  border-color: var(--accent-border);
+}

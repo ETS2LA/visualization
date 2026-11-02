@@ -146,7 +146,7 @@ export class DataFrameInterpolator
     this.currentFrame = frame;
   }
 
-  getInterpolatedFrame(timestamp: number): DataFrame | null {
+  getInterpolatedFrame(timestamp: number, smoothingFactor: number = 200): DataFrame | null {
     if (!this.lastFrame || !this.currentFrame) {
       return null;
     }
@@ -155,7 +155,7 @@ export class DataFrameInterpolator
     // in at least 200ms (twice the datarate). Technically the higher this value is the "smoother" the output 
     // will be at the cost of latency, 200 seems fine for most cases.
     const currentTimestamp = this.currentFrame.timestamp;
-    const nextFrameEstimatedTimestamp = currentTimestamp + 200;
+    const nextFrameEstimatedTimestamp = currentTimestamp + smoothingFactor;
     const t = (timestamp - currentTimestamp) / (nextFrameEstimatedTimestamp - currentTimestamp);
 
     if (t < 0 || t > 1) {

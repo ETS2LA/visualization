@@ -1,7 +1,147 @@
-* {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --text-h: #ffffff;
+  --text: #dadada;
+  --text-l: #bababa;
+  --description: #797979;
+
+  --bg: #2b2b2b;
+  --bg-dark: #272727;
+  --bg-darker: #242424;
+
+  --border: #474747;
+
+  --control: #474747;
+  --control-bg: #2d2d2d;
+  --control-bg-dark: #2a2a2a;
+
+  --text-accent: #ecaf93;
+  --accent: #9a6a54;
+  --accent-border: #61493c;
+  --accent-dark: #423732;
+  --accent-darker: #322925;
+
+  --success: #01bb4e;
+  --success-dark: #006b2a;
+  --success-bg: #003b1a;
+
+  --warning: #ca9100;
+  --warning-dark: #7f5c00;
+  --warning-bg: #3f2b00;
+
+  --danger: #ca3345;
+  --danger-dark: #8a2d3a;
+  --danger-bg: #2f1418;
+
+  --code-bg: #222222;
+
+  color-scheme: dark;
+  color: var(--text);
+  background-color: var(--bg);
+
+  font-size: 14px;
+  letter-spacing: 0.18px;
+  font-family: Outfit, "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #visualization-root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--text-h);
+}
+
+.description {
+  color: var(--description);
+  font-size: 12px;
+}
+
+h1 {
+  color: var(--text-h);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+h2 {
+  color: var(--text-h);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+h3 {
+  color: var(--text-h);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Button styles matching ETS2LA website */
+.button {
+  color: var(--text-h);
+  background-color: var(--control-bg-dark);
+  border: 1px solid var(--control-bg);
+  border-radius: 0.25rem;
+  padding: 6px 12px;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: var(--control-bg);
+  border-color: var(--accent-dark);
+}
+
+.button-active {
+  background-color: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.button-small {
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.button-accent {
+  color: var(--text-h);
+  background-color: color-mix(in srgb, var(--accent-dark) 30%, transparent);
+  border: 1px solid var(--accent-dark);
+}
+
+.button-accent:hover {
+  background-color: color-mix(in srgb, var(--accent-dark) 50%, transparent);
+  border-color: var(--accent-dark);
+}
+
+.card {
+  background-color: var(--control-bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }

@@ -167,7 +167,9 @@ export class Visualizer {
     }
     
     private updateState() {
-        const frame = this.interpolator.getInterpolatedFrame(Date.now());
+        const playbackSpeed = this.activeProvider?.playbackSpeed ?? 1.0;
+        const smoothingFactor = Math.max(200, 200 / playbackSpeed);
+        const frame = this.interpolator.getInterpolatedFrame(Date.now(), smoothingFactor);
         if (!frame) return;
 
         this.camera.setQuaternion(frame.telemetryData.rotation);

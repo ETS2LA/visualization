@@ -4,6 +4,7 @@ export interface DataProvider {
   connect(): Promise<void>;
   disconnect(): void;
   onFrame(callback: (frame: DataFrame) => void): void;
+  playbackSpeed?: number;
   
   controls?: {
     play(): void;
