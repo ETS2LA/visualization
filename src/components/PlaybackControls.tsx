@@ -18,18 +18,15 @@ function formatTime(seconds: number): string {
 
 export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     provider,
+    fileName,
     onOpenFilePicker,
 }) => {
     const [state, setState] = useState<PlaybackState>(() => provider.getPlaybackState());
     const [isScrubbing, setIsScrubbing] = useState(false);
-    const [scrubValue, setScrubValue] = useState(0);
 
     useEffect(() => {
         const unsubscribe = provider.onPlaybackStateChange((newState) => {
             setState(newState);
-            if (!isScrubbing) {
-                setScrubValue(newState.currentTime);
-            }
         });
         return unsubscribe;
     }, [provider, isScrubbing]);
@@ -48,16 +45,20 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             } else if (e.code === 'ArrowRight') {
                 e.preventDefault();
                 provider.seek(Math.min(state.duration, state.currentTime + (e.shiftKey ? 10 : 2)));
+            } else if (e.key === 's' || e.key === 'S') {
+                if (state.isGamePaused) {
+                    e.preventDefault();
+                    provider.skipPause();
+                }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [provider, state.currentTime, state.duration]);
+    }, [provider, state.currentTime, state.duration, state.isGamePaused]);
 
     const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = parseFloat(e.target.value);
-        setScrubValue(val);
         setIsScrubbing(true);
         provider.seek(val);
     };
@@ -94,6 +95,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
         >
+            {/* Top row: file, driver, collision and pause metadata */}
             <div
                 style={{
                     display: 'flex',
@@ -104,7 +106,6 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-
                     {state.username && (
                         <span>
                             Recording by <strong style={{ color: 'var(--text-h)' }}>{state.username}</strong>
@@ -123,6 +124,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 )}
             </div>
 
+            {/* Middle row: timeline scrubber with pause and collision markers */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
                 <span
                     style={{
@@ -132,21 +134,85 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                         minWidth: '58px',
                     }}
                 >
-                    {formatTime(isScrubbing ? scrubValue : state.currentTime)}
+                    {formatTime(state.currentTime)}
                 </span>
 
-                <input
-                    type="range"
-                    className="slider"
-                    min={0}
-                    max={state.duration || 1}
-                    step={0.01}
-                    value={isScrubbing ? scrubValue : state.currentTime}
-                    onChange={handleSeekChange}
-                    onMouseUp={handleSeekCommit}
-                    onTouchEnd={handleSeekCommit}
-                    style={{ flex: 1 }}
-                />
+                <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', height: '18px' }}>
+                    {/* Render Pause intervals on timeline track */}
+                    {state.pauses && state.pauses.map((pause, idx) => {
+                        const dur = state.duration || 1;
+                        const leftPct = (pause.startTime / dur) * 100;
+                        const widthPct = Math.max(0.5, ((pause.endTime - pause.startTime) / dur) * 100);
+                        return (
+                            <div
+                                key={`pause-${idx}`}
+                                title={`Pause: ${formatTime(pause.startTime)} - ${formatTime(pause.endTime)} (Click to seek)`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    provider.seek(pause.startTime);
+                                }}
+                                style={{
+                                    position: 'absolute',
+                                    left: `${leftPct}%`,
+                                    width: `${widthPct}%`,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    height: '6px',
+                                    backgroundColor: 'rgba(202, 145, 0, 0.55)',
+                                    borderLeft: '1px solid var(--warning)',
+                                    borderRight: '1px solid var(--warning)',
+                                    borderRadius: '1px',
+                                    cursor: 'pointer',
+                                    zIndex: 2,
+                                    pointerEvents: 'auto',
+                                }}
+                            />
+                        );
+                    })}
+
+                    {/* Render Collision pins on timeline */}
+                    {state.collisions && state.collisions.map((col, idx) => {
+                        const dur = state.duration || 1;
+                        const leftPct = (col.time / dur) * 100;
+                        return (
+                            <div
+                                key={`col-${idx}`}
+                                title={`Collision at ${formatTime(col.time)} (Click to seek)`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    provider.seek(col.time);
+                                }}
+                                style={{
+                                    position: 'absolute',
+                                    left: `${leftPct}%`,
+                                    top: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    width: '10px',
+                                    height: '10px',
+                                    backgroundColor: 'var(--accent)',
+                                    border: '1.5px solid #ffffff',
+                                    borderRadius: '50%',
+                                    cursor: 'pointer',
+                                    zIndex: 5,
+                                    pointerEvents: 'auto',
+                                }}
+                            />
+                        );
+                    })}
+
+                    <input
+                        type="range"
+                        className="slider"
+                        min={0}
+                        max={state.duration || 1}
+                        step={0.01}
+                        value={state.currentTime}
+                        onChange={handleSeekChange}
+                        onMouseUp={handleSeekCommit}
+                        onTouchEnd={handleSeekCommit}
+                        style={{ width: '100%', position: 'relative', zIndex: 3 }}
+                    />
+                </div>
 
                 <span
                     style={{
@@ -161,6 +227,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 </span>
             </div>
 
+            {/* Bottom row: playback controls */}
             <div
                 style={{
                     display: 'flex',
@@ -170,6 +237,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/* Play/Pause Button */}
                     <button
                         onClick={() => provider.togglePlayPause()}
                         title={state.isPlaying ? 'Pause (Space)' : 'Play (Space)'}
@@ -192,6 +260,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                         )}
                     </button>
 
+                    {/* Step Backward */}
                     <button
                         onClick={() => provider.seek(Math.max(0, state.currentTime - 2))}
                         title="Back 2s (Left arrow)"
@@ -203,6 +272,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                         </svg>
                     </button>
 
+                    {/* Step Forward */}
                     <button
                         onClick={() => provider.seek(Math.min(state.duration, state.currentTime + 2))}
                         title="Forward 2s (Right arrow)"
@@ -214,6 +284,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                         </svg>
                     </button>
 
+                    {/* Loop Toggle */}
                     <button
                         onClick={() => provider.setLoop(!state.isLooping)}
                         title={state.isLooping ? 'Looping enabled' : 'Looping disabled'}
@@ -222,8 +293,21 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                     >
                         Loop
                     </button>
+
+                    {/* Skip Pause Button if game is currently paused */}
+                    {state.isGamePaused && (
+                        <button
+                            onClick={() => provider.skipPause()}
+                            title="Skip in-game pause (S)"
+                            className="button button-small button-accent"
+                            style={{ gap: '4px', marginLeft: '6px' }}
+                        >
+                            Skip Pause
+                        </button>
+                    )}
                 </div>
 
+                {/* Speed selector */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span className="description" style={{ marginRight: '2px' }}>Speed:</span>
                     {speedOptions.map((spd) => (

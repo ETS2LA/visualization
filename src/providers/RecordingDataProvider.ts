@@ -1,6 +1,6 @@
 import type { DataProvider } from './DataProvider';
-import type { DataFrame, Node, RoadSegment, Uid, Vehicle } from '../core/types';
-import type { Recording, RecordingEvent, PlaybackState } from '../core/recording';
+import type { DataFrame, Node, RoadSegment, Uid, Vehicle, Prefab, Model } from '../core/types';
+import type { Recording, RecordingEvent, PlaybackState, StaticDataMessage, TimelineMarker, PauseInterval } from '../core/recording';
 
 // Note: This file was created using AI (the same as the corresponding file on the plugin-side)
 //       I can't guarantee this is the best it can be, nor that it is free of bugs. It's good enough
@@ -25,13 +25,22 @@ export abstract class RecordingDataProvider implements DataProvider {
 
     protected latestPlayerFrame: DataFrame | null = null;
     protected latestTrafficVehicles: Vehicle[] = [];
-    protected latestRoads: RoadSegment[] = [];
-    protected latestNodes: Record<Uid, Node> = {};
+
+    // Static data accumulation (nodes, roads, prefabs, models)
+    protected staticNodes: Record<Uid, Node> = {};
+    protected staticRoads: Map<Uid, RoadSegment> = new Map();
+    protected staticPrefabs: Map<Uid, Prefab> = new Map();
+    protected staticModels: Map<Uid, Model> = new Map();
+
+    // Timeline event markers
+    protected collisions: TimelineMarker[] = [];
+    protected pauses: PauseInterval[] = [];
 
     public controls = {
         play: () => this.play(),
         pause: () => this.pause(),
         seek: (timeInSeconds: number) => this.seek(timeInSeconds),
+        skipPause: () => this.skipPause(),
     };
 
     protected computeEventTimes(events: RecordingEvent[]): { times: number[]; duration: number } {
@@ -43,10 +52,21 @@ export abstract class RecordingDataProvider implements DataProvider {
         const hasFractionalTimestamps = events.some(e => e.timestamp % 1 !== 0);
 
         if (hasFractionalTimestamps) {
-            // Event timestamps already have sub-second precision
-            const baseTime = events[0].timestamp;
+            // Event timestamps already have sub-second precision.
+            // 0s of the timeline matches the first normal frame (player or traffic),
+            // not earlier pre-buffered events (e.g. static data saved up to 120s beforehand).
+            const firstNormalIdx = events.findIndex(e => e.type === 'player' || e.type === 'traffic');
+            const baseTime = firstNormalIdx !== -1 ? events[firstNormalIdx].timestamp : events[0].timestamp;
+
+            let maxTime = 0;
             for (let i = 0; i < events.length; i++) {
-                times[i] = Math.max(0, events[i].timestamp - baseTime);
+                const diff = events[i].timestamp - baseTime;
+                // Events before the first normal frame or part of the initial frame (<= 10ms diff) map to 0
+                const t = diff <= 0.01 ? 0 : diff;
+                if (t > maxTime) {
+                    maxTime = t;
+                }
+                times[i] = maxTime;
             }
         } else {
             // Event timestamps were rounded to integer seconds (e.g. C# integer division).
@@ -93,12 +113,40 @@ export abstract class RecordingDataProvider implements DataProvider {
         this.currentTime = 0;
         this.latestPlayerFrame = null;
         this.latestTrafficVehicles = [];
-        this.latestRoads = [];
-        this.latestNodes = {};
+        this.resetStaticData();
 
         const { times, duration } = this.computeEventTimes(recording.events);
         this.eventTimes = times;
         this.duration = duration;
+
+        // Parse collisions and pauses
+        this.collisions = [];
+        this.pauses = [];
+        let activePauseStart: number | null = null;
+
+        for (let i = 0; i < recording.events.length; i++) {
+            const evt = recording.events[i];
+            const t = this.eventTimes[i];
+
+            if (evt.type === 'collision') {
+                this.collisions.push({ time: t, label: 'Collision' });
+            } else if (evt.type === 'pause') {
+                if (evt.paused) {
+                    if (activePauseStart === null) {
+                        activePauseStart = t;
+                    }
+                } else {
+                    if (activePauseStart !== null) {
+                        this.pauses.push({ startTime: activePauseStart, endTime: t });
+                        activePauseStart = null;
+                    }
+                }
+            }
+        }
+
+        if (activePauseStart !== null) {
+            this.pauses.push({ startTime: activePauseStart, endTime: this.duration });
+        }
 
         // Seek to 0 to emit initial frame
         this.seek(0);
@@ -107,6 +155,63 @@ export abstract class RecordingDataProvider implements DataProvider {
             this.play();
         } else {
             this.notifyPlaybackState();
+        }
+    }
+
+    private resetStaticData(): void {
+        this.staticNodes = {};
+        this.staticRoads.clear();
+        this.staticPrefabs.clear();
+        this.staticModels.clear();
+    }
+
+    private applyStaticDataMessage(message: StaticDataMessage): void {
+        // Additions
+        if (message.add) {
+            if (message.add.nodes) {
+                for (const nodeId in message.add.nodes) {
+                    this.staticNodes[nodeId] = message.add.nodes[nodeId];
+                }
+            }
+            if (message.add.roads) {
+                for (const road of message.add.roads) {
+                    this.staticRoads.set(road.id, road);
+                }
+            }
+            if (message.add.prefabs) {
+                for (const prefab of message.add.prefabs) {
+                    this.staticPrefabs.set(prefab.id, prefab);
+                }
+            }
+            if (message.add.models) {
+                for (const model of message.add.models) {
+                    this.staticModels.set(model.id, model);
+                }
+            }
+        }
+
+        // Removals
+        if (message.remove) {
+            if (message.remove.nodes) {
+                for (const nodeId of message.remove.nodes) {
+                    delete this.staticNodes[nodeId];
+                }
+            }
+            if (message.remove.roads) {
+                for (const roadId of message.remove.roads) {
+                    this.staticRoads.delete(roadId);
+                }
+            }
+            if (message.remove.prefabs) {
+                for (const prefabId of message.remove.prefabs) {
+                    this.staticPrefabs.delete(prefabId);
+                }
+            }
+            if (message.remove.models) {
+                for (const modelId of message.remove.models) {
+                    this.staticModels.delete(modelId);
+                }
+            }
         }
     }
 
@@ -176,6 +281,13 @@ export abstract class RecordingDataProvider implements DataProvider {
         this.notifyPlaybackState();
     }
 
+    public skipPause(): void {
+        const pause = this.pauses.find(p => this.currentTime >= p.startTime && this.currentTime < p.endTime);
+        if (pause) {
+            this.seek(pause.endTime);
+        }
+    }
+
     public seek(timeInSeconds: number): void {
         if (!this.recording || this.recording.events.length === 0) return;
 
@@ -187,8 +299,7 @@ export abstract class RecordingDataProvider implements DataProvider {
         // Reconstruct state up to targetTime
         this.latestPlayerFrame = null;
         this.latestTrafficVehicles = [];
-        this.latestRoads = [];
-        this.latestNodes = {};
+        this.resetStaticData();
 
         let index = 0;
         while (index < events.length && this.eventTimes[index] <= targetTime) {
@@ -196,16 +307,22 @@ export abstract class RecordingDataProvider implements DataProvider {
             if (evt.type === 'player') {
                 this.latestPlayerFrame = evt.data;
                 if (evt.data.roads && evt.data.roads.length > 0) {
-                    this.latestRoads = evt.data.roads;
+                    for (const road of evt.data.roads) {
+                        this.staticRoads.set(road.id, road);
+                    }
                 }
                 if (evt.data.nodes && Object.keys(evt.data.nodes).length > 0) {
-                    this.latestNodes = evt.data.nodes;
+                    for (const nodeId in evt.data.nodes) {
+                        this.staticNodes[nodeId] = evt.data.nodes[nodeId];
+                    }
                 }
                 if (evt.data.vehicles && evt.data.vehicles.length > 0) {
                     this.latestTrafficVehicles = evt.data.vehicles;
                 }
             } else if (evt.type === 'traffic') {
                 this.latestTrafficVehicles = evt.vehicles;
+            } else if (evt.type === 'staticData') {
+                this.applyStaticDataMessage(evt.data);
             }
             index++;
         }
@@ -221,6 +338,10 @@ export abstract class RecordingDataProvider implements DataProvider {
         this.notifyPlaybackState();
     }
 
+    private isCurrentTimeInPause(time: number): boolean {
+        return this.pauses.some(p => time >= p.startTime && time < p.endTime);
+    }
+
     private runLoop = (): void => {
         if (!this.isPlaying || !this.recording) return;
 
@@ -228,6 +349,7 @@ export abstract class RecordingDataProvider implements DataProvider {
         const dt = ((now - this.lastAnimTime) / 1000) * this.playbackSpeed;
         this.lastAnimTime = now;
 
+        const prevTime = this.currentTime;
         this.currentTime += dt;
 
         if (this.currentTime >= this.duration) {
@@ -254,10 +376,14 @@ export abstract class RecordingDataProvider implements DataProvider {
             if (evt.type === 'player') {
                 this.latestPlayerFrame = evt.data;
                 if (evt.data.roads && evt.data.roads.length > 0) {
-                    this.latestRoads = evt.data.roads;
+                    for (const road of evt.data.roads) {
+                        this.staticRoads.set(road.id, road);
+                    }
                 }
                 if (evt.data.nodes && Object.keys(evt.data.nodes).length > 0) {
-                    this.latestNodes = evt.data.nodes;
+                    for (const nodeId in evt.data.nodes) {
+                        this.staticNodes[nodeId] = evt.data.nodes[nodeId];
+                    }
                 }
                 if (evt.data.vehicles && evt.data.vehicles.length > 0) {
                     this.latestTrafficVehicles = evt.data.vehicles;
@@ -265,6 +391,9 @@ export abstract class RecordingDataProvider implements DataProvider {
                 hasFrameToEmit = true;
             } else if (evt.type === 'traffic') {
                 this.latestTrafficVehicles = evt.vehicles;
+                hasFrameToEmit = true;
+            } else if (evt.type === 'staticData') {
+                this.applyStaticDataMessage(evt.data);
                 hasFrameToEmit = true;
             }
             this.currentEventIndex++;
@@ -274,8 +403,11 @@ export abstract class RecordingDataProvider implements DataProvider {
             this.emitCurrentFrame();
         }
 
-        // Throttle UI notification to ~10 Hz during playback
-        if (now - this.lastStateNotificationTime > 100) {
+        const wasPaused = this.isCurrentTimeInPause(prevTime);
+        const isPaused = this.isCurrentTimeInPause(this.currentTime);
+
+        // Notify state on pause transitions or throttled ~10 Hz during playback
+        if (wasPaused !== isPaused || now - this.lastStateNotificationTime > 100) {
             this.lastStateNotificationTime = now;
             this.notifyPlaybackState();
         }
@@ -289,16 +421,17 @@ export abstract class RecordingDataProvider implements DataProvider {
         const frame: DataFrame = {
             ...this.latestPlayerFrame,
             vehicles: this.latestTrafficVehicles,
-            roads: this.latestRoads.length > 0 ? this.latestRoads : (this.latestPlayerFrame.roads ?? []),
-            nodes: Object.keys(this.latestNodes).length > 0 ? this.latestNodes : (this.latestPlayerFrame.nodes ?? {}),
-            prefabs: this.latestPlayerFrame.prefabs ?? [],
-            models: this.latestPlayerFrame.models ?? [],
+            roads: this.staticRoads.size > 0 ? Array.from(this.staticRoads.values()) : (this.latestPlayerFrame.roads ?? []),
+            nodes: { ...this.staticNodes, ...(this.latestPlayerFrame.nodes ?? {}) },
+            prefabs: this.staticPrefabs.size > 0 ? Array.from(this.staticPrefabs.values()) : (this.latestPlayerFrame.prefabs ?? []),
+            models: this.staticModels.size > 0 ? Array.from(this.staticModels.values()) : (this.latestPlayerFrame.models ?? []),
         };
 
         this.frameCallback(frame);
     }
 
     public getPlaybackState(): PlaybackState {
+        const currentPause = this.pauses.find(p => this.currentTime >= p.startTime && this.currentTime < p.endTime);
         return {
             isPlaying: this.isPlaying,
             currentTime: this.currentTime,
@@ -310,6 +443,10 @@ export abstract class RecordingDataProvider implements DataProvider {
             endTime: this.recording?.endTime ?? new Date(),
             playbackSpeed: this.playbackSpeed,
             isLooping: this.isLooping,
+            isGamePaused: !!currentPause,
+            currentPauseEndTime: currentPause?.endTime,
+            collisions: this.collisions,
+            pauses: this.pauses,
         };
     }
 

@@ -38,6 +38,16 @@ function App() {
   const [localError, setLocalError] = useState<string | null>(null);
 
   const [cdnLoaded, setCdnLoaded] = useState(false);
+  const [isGamePaused, setIsGamePaused] = useState(false);
+
+  const activeRecordingProvider = sourceType === 'local' ? localProvider : sourceType === 'cdn' ? cdnProvider : null;
+
+  useEffect(() => {
+    if (!activeRecordingProvider) return;
+    return activeRecordingProvider.onPlaybackStateChange((s) => {
+      setIsGamePaused(s.isGamePaused);
+    });
+  }, [activeRecordingProvider]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -200,6 +210,54 @@ function App() {
           fileName={cdnProvider.getUrl() ?? 'CDN'}
           onOpenFilePicker={() => setCdnLoaded(false)}
         />
+      )}
+
+      {/* Game Paused Overlay */}
+      {isGamePaused && activeRecordingProvider && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(20, 20, 20, 0.2)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 35,
+            pointerEvents: 'auto',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '24px 32px',
+              gap: '14px',
+              backgroundColor: 'rgba(39, 39, 39, 0.95)',
+              border: '1px solid var(--border)',
+              borderRadius: '4px',
+              textAlign: 'center',
+            }}
+          >
+            <div>
+              <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', color: 'var(--text-h)' }}>
+                Game Was Paused
+              </h3>
+              <p className="description" style={{ margin: 0, fontSize: '13px' }}>
+                The user paused the game during this time.
+              </p>
+            </div>
+            <button
+              onClick={() => activeRecordingProvider.skipPause()}
+              className="button button-accent"
+              style={{ padding: '8px 18px', fontSize: '14px', gap: '8px', marginTop: '4px' }}
+            >
+              <span>Skip Pause</span>
+            </button> 
+          </div>
+        </div>
       )}
     </div>
   );

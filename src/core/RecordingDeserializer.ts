@@ -8,11 +8,20 @@ import type {
     Vector3,
     Quaternion,
     TelemetryTrailer,
+    Prefab,
+    PrefabSegment,
+    Model,
+    ModelPart,
+    ModelPiece,
+    AxisAlignedBoundingBox,
 } from './types';
 import {
     ticksToDate,
     type Recording,
     type RecordingEvent,
+    type StaticDataMessage,
+    type StaticDataAdditions,
+    type StaticDataRemovals,
 } from './recording';
 
 // Note: This file was created using AI (the same as the corresponding file on the plugin-side)
@@ -160,6 +169,26 @@ export class BinaryStreamReader {
         }
         return list;
     }
+
+    readIntArray(): number[] {
+        const count = this.readInt32();
+        if (count < 0) return [];
+        const list: number[] = new Array(count);
+        for (let i = 0; i < count; i++) {
+            list[i] = this.readInt32();
+        }
+        return list;
+    }
+
+    readStringList(): string[] {
+        const count = this.readInt32();
+        if (count < 0) return [];
+        const list: string[] = new Array(count);
+        for (let i = 0; i < count; i++) {
+            list[i] = this.readString();
+        }
+        return list;
+    }
 }
 
 export async function decompressGzip(data: ArrayBuffer | Uint8Array): Promise<ArrayBuffer> {
@@ -173,7 +202,7 @@ export async function decompressGzip(data: ArrayBuffer | Uint8Array): Promise<Ar
 
 function parseUid(idStr: string): Uid {
     const num = Number(idStr);
-    return isNaN(num) ? 0 : num;
+    return (!isNaN(num) && idStr.trim() !== '') ? num : 0;
 }
 
 export class RecordingDeserializer {
@@ -182,6 +211,9 @@ export class RecordingDeserializer {
 
     public static readonly EVENT_PLAYER = 0;
     public static readonly EVENT_TRAFFIC = 1;
+    public static readonly EVENT_STATIC_DATA = 2;
+    public static readonly EVENT_PAUSE = 3;
+    public static readonly EVENT_COLLISION = 4;
 
     public static async deserialize(data: ArrayBuffer | Uint8Array): Promise<Recording> {
         let decompressed: ArrayBuffer;
@@ -192,7 +224,7 @@ export class RecordingDeserializer {
             decompressed = await decompressGzip(uint8);
         } else {
             // Already raw / uncompressed
-            decompressed = uint8.buffer.slice(uint8.byteOffset, uint8.byteOffset + uint8.byteLength) as ArrayBuffer;
+            decompressed = (uint8.buffer.slice(uint8.byteOffset, uint8.byteOffset + uint8.byteLength)) as ArrayBuffer;
         }
 
         const reader = new BinaryStreamReader(decompressed);
@@ -234,6 +266,29 @@ export class RecordingDeserializer {
                         timestamp,
                         approxTimeTillNext,
                         vehicles: this.readVehicles(reader),
+                    };
+                    break;
+                case this.EVENT_STATIC_DATA:
+                    events[i] = {
+                        type: 'staticData',
+                        timestamp,
+                        approxTimeTillNext,
+                        data: this.readStaticDataMessage(reader),
+                    };
+                    break;
+                case this.EVENT_PAUSE:
+                    events[i] = {
+                        type: 'pause',
+                        timestamp,
+                        approxTimeTillNext,
+                        paused: reader.readBoolean(),
+                    };
+                    break;
+                case this.EVENT_COLLISION:
+                    events[i] = {
+                        type: 'collision',
+                        timestamp,
+                        approxTimeTillNext,
                     };
                     break;
                 default:
@@ -399,5 +454,125 @@ export class RecordingDeserializer {
             };
         }
         return vehicles;
+    }
+
+    // ---- Static data -----------------------------------------------------
+
+    private static readStaticDataMessage(r: BinaryStreamReader): StaticDataMessage {
+        return {
+            add: this.readStaticDataAdditions(r),
+            remove: this.readStaticDataRemovals(r),
+        };
+    }
+
+    private static readStaticDataAdditions(r: BinaryStreamReader): StaticDataAdditions {
+        const nodeCount = r.readInt32();
+        const nodes: Record<Uid, Node> = {};
+        for (let i = 0; i < nodeCount; i++) {
+            const key = parseUid(r.readString());
+            nodes[key] = this.readNode(r);
+        }
+
+        const roads = this.readRoads(r);
+        const prefabs = this.readPrefabs(r);
+        const models = this.readModels(r);
+
+        return {
+            nodes,
+            roads,
+            prefabs,
+            models,
+        };
+    }
+
+    private static readStaticDataRemovals(r: BinaryStreamReader): StaticDataRemovals {
+        return {
+            nodes: r.readStringList().map(parseUid),
+            roads: r.readStringList().map(parseUid),
+            prefabs: r.readStringList().map(parseUid),
+            models: r.readStringList().map(parseUid),
+        };
+    }
+
+    private static readPrefabs(r: BinaryStreamReader): Prefab[] {
+        const count = r.readInt32();
+        if (count < 0) return [];
+        const prefabs: Prefab[] = new Array(count);
+
+        for (let i = 0; i < count; i++) {
+            const id = parseUid(r.readString());
+            const prefabStart = r.readVector3();
+            const rootNodePosition = r.readVector3();
+            const prefabRotation = r.readVector3();
+
+            const segmentCount = r.readInt32();
+            const segments: PrefabSegment[] = new Array(segmentCount);
+            for (let j = 0; j < segmentCount; j++) {
+                segments[j] = {
+                    startPosition: r.readVector3(),
+                    endPosition: r.readVector3(),
+                    startRotation: r.readQuaternion(),
+                    endRotation: r.readQuaternion(),
+                    nextSegments: r.readIntArray(),
+                    previousSegments: r.readIntArray(),
+                    id: parseUid(r.readString()),
+                    length: r.readSingle(),
+                };
+            }
+
+            prefabs[i] = {
+                id,
+                prefabStart,
+                rootNodePosition,
+                prefabRotation,
+                segments,
+            };
+        }
+        return prefabs;
+    }
+
+    private static readModels(r: BinaryStreamReader): Model[] {
+        const count = r.readInt32();
+        if (count < 0) return [];
+        const models: Model[] = new Array(count);
+
+        for (let i = 0; i < count; i++) {
+            const id = parseUid(r.readString());
+            const node = parseUid(r.readString());
+            const scale = r.readVector3();
+            const boundingBox = this.readBoundingBox(r);
+            const boundingBoxCenter = r.readVector3();
+
+            const partCount = r.readInt32();
+            const parts: ModelPart[] = new Array(partCount);
+            for (let j = 0; j < partCount; j++) {
+                const pieceCount = r.readInt32();
+                const pieces: ModelPiece[] = new Array(pieceCount);
+                for (let k = 0; k < pieceCount; k++) {
+                    pieces[k] = {
+                        boundingBox: this.readBoundingBox(r),
+                        boundingBoxCenter: r.readVector3(),
+                    };
+                }
+                parts[j] = { pieces };
+            }
+
+            models[i] = {
+                id,
+                node,
+                scale,
+                boundingBox,
+                boundingBoxCenter,
+                parts,
+            };
+        }
+        return models;
+    }
+
+    private static readBoundingBox(r: BinaryStreamReader): AxisAlignedBoundingBox {
+        return {
+            min: r.readVector3(),
+            max: r.readVector3(),
+        };
     }
 }

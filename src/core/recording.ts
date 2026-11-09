@@ -1,6 +1,15 @@
-import type { Coordinate, Quaternion, Vector3, DataFrame, Vehicle } from './types';
-
-// These match the C# classes in the plugin-side.
+import type {
+    Coordinate,
+    Quaternion,
+    Vector3,
+    DataFrame,
+    Vehicle,
+    Node,
+    RoadSegment,
+    Prefab,
+    Model,
+    Uid,
+} from './types';
 
 export interface TelemetryTrailer {
     position: Coordinate;
@@ -44,13 +53,67 @@ export interface TrafficRecordingEvent {
     vehicles: Vehicle[];
 }
 
-export type RecordingEvent = PlayerRecordingEvent | TrafficRecordingEvent;
+export interface StaticDataAdditions {
+    nodes: Record<Uid, Node>;
+    roads: RoadSegment[];
+    prefabs: Prefab[];
+    models: Model[];
+}
+
+export interface StaticDataRemovals {
+    nodes: Uid[];
+    roads: Uid[];
+    prefabs: Uid[];
+    models: Uid[];
+}
+
+export interface StaticDataMessage {
+    add: StaticDataAdditions;
+    remove: StaticDataRemovals;
+}
+
+export interface StaticDataRecordingEvent {
+    type: 'staticData';
+    timestamp: number;
+    approxTimeTillNext: number;
+    data: StaticDataMessage;
+}
+
+export interface PauseRecordingEvent {
+    type: 'pause';
+    timestamp: number;
+    approxTimeTillNext: number;
+    paused: boolean;
+}
+
+export interface CollisionRecordingEvent {
+    type: 'collision';
+    timestamp: number;
+    approxTimeTillNext: number;
+}
+
+export type RecordingEvent =
+    | PlayerRecordingEvent
+    | TrafficRecordingEvent
+    | StaticDataRecordingEvent
+    | PauseRecordingEvent
+    | CollisionRecordingEvent;
 
 export interface Recording {
     startTime: Date;
     endTime: Date;
     username: string;
     events: RecordingEvent[];
+}
+
+export interface TimelineMarker {
+    time: number;
+    label?: string;
+}
+
+export interface PauseInterval {
+    startTime: number;
+    endTime: number;
 }
 
 export interface PlaybackState {
@@ -64,6 +127,10 @@ export interface PlaybackState {
     endTime: Date;
     playbackSpeed: number;
     isLooping: boolean;
+    isGamePaused: boolean;
+    currentPauseEndTime?: number;
+    collisions: TimelineMarker[];
+    pauses: PauseInterval[];
 }
 
 // .NET DateTime.Ticks epoch: Jan 1, 0001 00:00:00 UTC
