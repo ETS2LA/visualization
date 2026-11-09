@@ -18,7 +18,6 @@ function formatTime(seconds: number): string {
 
 export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
     provider,
-    fileName,
     onOpenFilePicker,
 }) => {
     const [state, setState] = useState<PlaybackState>(() => provider.getPlaybackState());
